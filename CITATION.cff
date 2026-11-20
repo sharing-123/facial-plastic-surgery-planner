@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata below.
+title: An Artificial Intelligence and Bioinformatics Framework for Quantitative Marking and Suture Planning of Facial Wounds and Scars in Plastic Surgery
+type: software
+version: 0.1.0
+date-released: 2026-11-20
+repository-code: https://github.com/sharing-123/facial-plastic-surgery-planner
+keywords:
+  - artificial intelligence
+  - bioinformatics
+  - facial scars
+  - surgical planning
+authors:
+  - family-names: Rafi
+    given-names: Muhammad Allam
+    affiliation: Faculty of Medicine, Universitas Indonesia, Jakarta, Indonesia
+  - family-names: Afrilia
+    given-names: Cindy Rizky
+    affiliation: Faculty of Medicine, Universitas Kristen Krida Wacana, Jakarta, Indonesia
+# Add the identifiers below after the records exist.
+# identifiers:
+#   - type: doi
+#     value: OSF DOI to be assigned
+#   - type: doi
+#     value: Zenodo DOI to be assigned

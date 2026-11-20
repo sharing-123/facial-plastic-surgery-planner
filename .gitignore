@@ -15,3 +15,7 @@ __pycache__/
 node_modules/
 .vercel/
 deploy/vercel/tests/golden.json
+
+# assets used by the README are tracked
+!assets/banner.webp
+!assets/figure_marking.jpg
