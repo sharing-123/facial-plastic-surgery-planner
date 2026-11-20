@@ -55,9 +55,9 @@ On a wound simulation mannequin, a rough outline of 9 points produced a contour 
 A fibrosis signature of 23 collagen, growth factor and matrix genes recovered extracellular matrix organisation and collagen pathways with a false discovery rate below one in a million. Random lists of 25 and 100 genes drawn from the library produced at least one significant pathway in 0.7 and 0.3 percent of 300 draws each. An earlier version that removed pathways by observed overlap before applying the correction inflated this rate to 53 percent, which is why every eligible pathway now enters the correction. The exported FHIR bundles passed validation against the R4B models.
 
 <p align="center">
-  <img src="assets/figure_marking.jpg" width="86%" alt="Marking plan on a synthetic face showing a wound line, a fusiform excision and serial Z plasty limbs">
+  <img src="assets/figure_marking.jpg" width="86%" alt="Three panels showing quantitative facial analysis, a before and after overlay of the planned correction and the simulated result on a public portrait">
 </p>
-<p align="center"><sub>Example output on synthetic geometry. The wound is shown with its excision outline, the Z plasty limbs and the skin tension direction.</sub></p>
+<p align="center"><sub>Example output on a public portrait with facial palsy from Wikimedia Commons (CC BY-SA 3.0, attribution to the original file page). Left, landmark based analysis. Centre, overlay of the planned correction. Right, a simulated 6 mm lift of the oral commissure, shown as an illustration and not as a predicted outcome.</sub></p>
 
 ## Limitations
 
