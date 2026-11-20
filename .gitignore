@@ -19,3 +19,4 @@ deploy/vercel/tests/golden.json
 # assets used by the README are tracked
 !assets/banner.webp
 !assets/figure_marking.jpg
+!assets/gallery/*.jpg

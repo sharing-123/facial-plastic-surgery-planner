@@ -59,6 +59,29 @@ A fibrosis signature of 23 collagen, growth factor and matrix genes recovered ex
 </p>
 <p align="center"><sub>Example output on a public portrait with facial palsy from Wikimedia Commons (CC BY-SA 3.0, attribution to the original file page). Left, landmark based analysis. Centre, overlay of the planned correction. Right, a simulated 6 mm lift of the oral commissure, shown as an illustration and not as a predicted outcome.</sub></p>
 
+## Gallery
+
+Selected outputs from development and testing, covering wounds, scars, palsy, wrinkles, acne and the facial atlas. Photographs were taken from Wikimedia Commons under public domain, CC BY or CC BY SA terms, and credit belongs to the original file pages. All plans are decision support examples and have not been checked by surgeons.
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/gallery/wound_suture_plan.jpg" width="100%" alt="Wound plan with numbered suture marks in halving order, on a wound simulation mannequin."><br><sub>Wound plan with numbered suture marks in halving order, on a wound simulation mannequin.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/serial_z_plasty.jpg" width="100%" alt="Serial Z plasty alternative for the same wound, with alternating limbs."><br><sub>Serial Z plasty alternative for the same wound, with alternating limbs.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/gallery/closure_illustration.jpg" width="100%" alt="Schematic illustration before and after closure. It is not a prediction."><br><sub>Schematic illustration before and after closure. It is not a prediction.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/keloid_nonlinear.jpg" width="100%" alt="Facial keloid recognised as a nonlinear lesion, so no suture line is drawn."><br><sub>Facial keloid recognised as a nonlinear lesion, so no suture line is drawn.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/gallery/palsy_symmetry.jpg" width="100%" alt="Facial palsy portrait with proportions and symmetry flags against cited references."><br><sub>Facial palsy portrait with proportions and symmetry flags against cited references.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/wrinkle_map.jpg" width="100%" alt="Wrinkle map by zone, with hair removed and unanalysed zones marked."><br><sub>Wrinkle map by zone, with hair removed and unanalysed zones marked.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/gallery/acne_candidates.jpg" width="100%" alt="Colour based acne lesion candidates, to be confirmed by the clinician."><br><sub>Colour based acne lesion candidates, to be confirmed by the clinician.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/zone_atlas.jpg" width="100%" alt="The 34 zone atlas that covers the whole facial oval with no gaps."><br><sub>The 34 zone atlas that covers the whole facial oval with no gaps.</sub></td>
+  </tr>
+</table>
+
 ## Limitations
 
 The skin tension field is a coarse approximation that has not been compared with a published atlas, and it should be overridden by the surgeon when it disagrees with clinical judgement. Measurements come from a single two dimensional photograph, so curved surfaces distort lengths, and the scale depends on an iris assumption unless a ruler is used. The segmentation model was trained on everyday objects, and its contours on clinical wounds have not been compared with manual outlines. The detector for red spots is based on colour alone and cannot separate acne from other red marks, since normal faces returned between 0 and 28 candidate spots while two photographs with acne returned 35 and 45. The wrinkle detector was tuned on synthetic skin and examined on a small number of photographs. The planner follows textbook rules, and it cannot see depth, blood supply, contamination, nerve injury or bone. No part of the framework has been tested against surgeons or on patients, and it must not be used to make clinical decisions.
