@@ -1,0 +1,17 @@
+# models are downloaded by scripts/download_models.py
+models/
+face_landmarker.task
+# outputs and local data: NEVER commit patient photos or exports
+app_output/
+demo_output/
+*.jpg
+*.jpeg
+*.png
+*.heic
+!deploy/vercel/public/*.png
+__pycache__/
+*.pyc
+.claude/
+node_modules/
+.vercel/
+deploy/vercel/tests/golden.json

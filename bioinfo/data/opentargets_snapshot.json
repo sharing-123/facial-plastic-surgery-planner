@@ -1,0 +1,394 @@
+{
+ "retrieved": "2026-11-20",
+ "source": "https://api.platform.opentargets.org/api/v4/graphql",
+ "diseases": {
+  "keloid": {
+   "id": "MONDO_0005348",
+   "name": "keloid",
+   "n_associated_targets": 1500,
+   "top_targets": [
+    {
+     "symbol": "PHLDA3",
+     "ensembl": "ENSG00000174307",
+     "name": "pleckstrin homology like domain family A member 3",
+     "score": 0.537
+    },
+    {
+     "symbol": "NEDD4",
+     "ensembl": "ENSG00000069869",
+     "name": "NEDD4 E3 ubiquitin protein ligase",
+     "score": 0.508
+    },
+    {
+     "symbol": "HEMK2",
+     "ensembl": "ENSG00000156239",
+     "name": "HemK methyltransferase 2, ETF1 glutamine and histone H4 lysine",
+     "score": 0.446
+    },
+    {
+     "symbol": "PRTG",
+     "ensembl": "ENSG00000166450",
+     "name": "protogenin",
+     "score": 0.443
+    },
+    {
+     "symbol": "SLC67A1",
+     "ensembl": "ENSG00000110628",
+     "name": "solute carrier family 67 member 1",
+     "score": 0.429
+    },
+    {
+     "symbol": "DUSP10",
+     "ensembl": "ENSG00000143507",
+     "name": "dual specificity phosphatase 10",
+     "score": 0.419
+    },
+    {
+     "symbol": "JAG1",
+     "ensembl": "ENSG00000101384",
+     "name": "jagged canonical Notch ligand 1",
+     "score": 0.413
+    },
+    {
+     "symbol": "SETBP1",
+     "ensembl": "ENSG00000152217",
+     "name": "SET binding protein 1",
+     "score": 0.405
+    },
+    {
+     "symbol": "ITGA11",
+     "ensembl": "ENSG00000137809",
+     "name": "integrin subunit alpha 11",
+     "score": 0.39
+    },
+    {
+     "symbol": "AP4E1",
+     "ensembl": "ENSG00000081014",
+     "name": "adaptor related protein complex 4 subunit epsilon 1",
+     "score": 0.348
+    },
+    {
+     "symbol": "LSP1",
+     "ensembl": "ENSG00000130592",
+     "name": "lymphocyte specific protein 1",
+     "score": 0.332
+    },
+    {
+     "symbol": "TRIB2",
+     "ensembl": "ENSG00000071575",
+     "name": "tribbles pseudokinase 2",
+     "score": 0.331
+    },
+    {
+     "symbol": "MSR1",
+     "ensembl": "ENSG00000038945",
+     "name": "macrophage scavenger receptor 1",
+     "score": 0.325
+    },
+    {
+     "symbol": "KIRREL3",
+     "ensembl": "ENSG00000149571",
+     "name": "kirre like nephrin family adhesion molecule 3",
+     "score": 0.322
+    },
+    {
+     "symbol": "SFRP4",
+     "ensembl": "ENSG00000106483",
+     "name": "secreted frizzled related protein 4",
+     "score": 0.319
+    }
+   ]
+  },
+  "cleft lip": {
+   "id": "EFO_0003959",
+   "name": "cleft lip",
+   "n_associated_targets": 969,
+   "top_targets": [
+    {
+     "symbol": "ARHGAP29",
+     "ensembl": "ENSG00000137962",
+     "name": "Rho GTPase activating protein 29",
+     "score": 0.607
+    },
+    {
+     "symbol": "IRF6",
+     "ensembl": "ENSG00000117595",
+     "name": "interferon regulatory factor 6",
+     "score": 0.538
+    },
+    {
+     "symbol": "PAX7",
+     "ensembl": "ENSG00000009709",
+     "name": "paired box 7",
+     "score": 0.519
+    },
+    {
+     "symbol": "CTNND1",
+     "ensembl": "ENSG00000198561",
+     "name": "catenin delta 1",
+     "score": 0.51
+    },
+    {
+     "symbol": "NTN1",
+     "ensembl": "ENSG00000065320",
+     "name": "netrin 1",
+     "score": 0.506
+    },
+    {
+     "symbol": "NECTIN1",
+     "ensembl": "ENSG00000110400",
+     "name": "nectin cell adhesion molecule 1",
+     "score": 0.477
+    },
+    {
+     "symbol": "MSX1",
+     "ensembl": "ENSG00000163132",
+     "name": "msh homeobox 1",
+     "score": 0.473
+    },
+    {
+     "symbol": "CYRIA",
+     "ensembl": "ENSG00000197872",
+     "name": "CYFIP related Rac1 interactor A",
+     "score": 0.425
+    },
+    {
+     "symbol": "NOG",
+     "ensembl": "ENSG00000183691",
+     "name": "noggin",
+     "score": 0.421
+    },
+    {
+     "symbol": "PLEKHA7",
+     "ensembl": "ENSG00000166689",
+     "name": "pleckstrin homology domain containing A7",
+     "score": 0.413
+    },
+    {
+     "symbol": "TP63",
+     "ensembl": "ENSG00000073282",
+     "name": "tumor protein p63",
+     "score": 0.412
+    },
+    {
+     "symbol": "SHTN1",
+     "ensembl": "ENSG00000187164",
+     "name": "shootin 1",
+     "score": 0.399
+    },
+    {
+     "symbol": "CDH1",
+     "ensembl": "ENSG00000039068",
+     "name": "cadherin 1",
+     "score": 0.395
+    },
+    {
+     "symbol": "ESRP2",
+     "ensembl": "ENSG00000103067",
+     "name": "epithelial splicing regulatory protein 2",
+     "score": 0.394
+    },
+    {
+     "symbol": "DCAF4L2",
+     "ensembl": "ENSG00000176566",
+     "name": "DDB1 and CUL4 associated factor 4 like 2",
+     "score": 0.387
+    }
+   ]
+  },
+  "Bell palsy": {
+   "id": "MONDO_0005665",
+   "name": "Bell's palsy",
+   "n_associated_targets": 184,
+   "top_targets": [
+    {
+     "symbol": "NR3C1",
+     "ensembl": "ENSG00000113580",
+     "name": "nuclear receptor subfamily 3 group C member 1",
+     "score": 0.35
+    },
+    {
+     "symbol": "SUPT3H",
+     "ensembl": "ENSG00000196284",
+     "name": "SPT3 homolog, SAGA and STAGA complex component",
+     "score": 0.243
+    },
+    {
+     "symbol": "CAPN12",
+     "ensembl": "ENSG00000182472",
+     "name": "calpain 12",
+     "score": 0.074
+    },
+    {
+     "symbol": "CXCL13",
+     "ensembl": "ENSG00000156234",
+     "name": "C-X-C motif chemokine ligand 13",
+     "score": 0.039
+    },
+    {
+     "symbol": "CDC5L",
+     "ensembl": "ENSG00000096401",
+     "name": "cell division cycle 5 like",
+     "score": 0.038
+    },
+    {
+     "symbol": "CLIC5",
+     "ensembl": "ENSG00000112782",
+     "name": "CLIC family member 5",
+     "score": 0.037
+    },
+    {
+     "symbol": "IL10",
+     "ensembl": "ENSG00000136634",
+     "name": "interleukin 10",
+     "score": 0.037
+    },
+    {
+     "symbol": "RUNX2",
+     "ensembl": "ENSG00000124813",
+     "name": "RUNX family transcription factor 2",
+     "score": 0.037
+    },
+    {
+     "symbol": "SPATS1",
+     "ensembl": "ENSG00000249481",
+     "name": "spermatogenesis associated serine rich 1",
+     "score": 0.032
+    },
+    {
+     "symbol": "ALB",
+     "ensembl": "ENSG00000163631",
+     "name": "albumin",
+     "score": 0.027
+    },
+    {
+     "symbol": "TNF",
+     "ensembl": "ENSG00000232810",
+     "name": "tumor necrosis factor",
+     "score": 0.026
+    },
+    {
+     "symbol": "AQP1",
+     "ensembl": "ENSG00000240583",
+     "name": "aquaporin 1 (Colton blood group)",
+     "score": 0.026
+    },
+    {
+     "symbol": "NGF",
+     "ensembl": "ENSG00000134259",
+     "name": "nerve growth factor",
+     "score": 0.025
+    },
+    {
+     "symbol": "LGALS4",
+     "ensembl": "ENSG00000171747",
+     "name": "galectin 4",
+     "score": 0.025
+    },
+    {
+     "symbol": "NEFL",
+     "ensembl": "ENSG00000277586",
+     "name": "neurofilament light chain",
+     "score": 0.024
+    }
+   ]
+  },
+  "acne vulgaris": {
+   "id": "MONDO_0011438",
+   "name": "acne",
+   "n_associated_targets": 1599,
+   "top_targets": [
+    {
+     "symbol": "MMP1",
+     "ensembl": "ENSG00000196611",
+     "name": "matrix metallopeptidase 1",
+     "score": 0.615
+    },
+    {
+     "symbol": "ESR1",
+     "ensembl": "ENSG00000091831",
+     "name": "estrogen receptor 1",
+     "score": 0.611
+    },
+    {
+     "symbol": "RARG",
+     "ensembl": "ENSG00000172819",
+     "name": "retinoic acid receptor gamma",
+     "score": 0.61
+    },
+    {
+     "symbol": "RARA",
+     "ensembl": "ENSG00000131759",
+     "name": "retinoic acid receptor alpha",
+     "score": 0.608
+    },
+    {
+     "symbol": "RARB",
+     "ensembl": "ENSG00000077092",
+     "name": "retinoic acid receptor beta",
+     "score": 0.607
+    },
+    {
+     "symbol": "MMP13",
+     "ensembl": "ENSG00000137745",
+     "name": "matrix metallopeptidase 13",
+     "score": 0.605
+    },
+    {
+     "symbol": "MMP7",
+     "ensembl": "ENSG00000137673",
+     "name": "matrix metallopeptidase 7",
+     "score": 0.603
+    },
+    {
+     "symbol": "MMP8",
+     "ensembl": "ENSG00000118113",
+     "name": "matrix metallopeptidase 8",
+     "score": 0.603
+    },
+    {
+     "symbol": "PGR",
+     "ensembl": "ENSG00000082175",
+     "name": "progesterone receptor",
+     "score": 0.597
+    },
+    {
+     "symbol": "AR",
+     "ensembl": "ENSG00000169083",
+     "name": "androgen receptor",
+     "score": 0.59
+    },
+    {
+     "symbol": "NR3C2",
+     "ensembl": "ENSG00000151623",
+     "name": "nuclear receptor subfamily 3 group C member 2",
+     "score": 0.581
+    },
+    {
+     "symbol": "SEMA4B",
+     "ensembl": "ENSG00000185033",
+     "name": "semaphorin 4B",
+     "score": 0.526
+    },
+    {
+     "symbol": "NR3C1",
+     "ensembl": "ENSG00000113580",
+     "name": "nuclear receptor subfamily 3 group C member 1",
+     "score": 0.514
+    },
+    {
+     "symbol": "CDC42BPG",
+     "ensembl": "ENSG00000171219",
+     "name": "CDC42 binding protein kinase gamma",
+     "score": 0.421
+    },
+    {
+     "symbol": "LAMC1",
+     "ensembl": "ENSG00000135862",
+     "name": "laminin subunit gamma 1",
+     "score": 0.413
+    }
+   ]
+  }
+ }
+}

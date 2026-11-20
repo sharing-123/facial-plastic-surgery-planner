@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analisis Wajah dan Marking</title>
+<style>
+  :root { --bg:#f4f6f9; --card:#fff; --ink:#1b2430; --mut:#6a7686; --line:#dbe1e9; --pri:#1f5fbf; --pri2:#e8f0fc; --red:#c0392b; --grn:#2e8b57; --amb:#b7791f; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12161c; --card:#1b212a; --ink:#e7ebf0; --mut:#9aa6b5; --line:#2c3541; --pri:#6aa6ff; --pri2:#1d2a40; --red:#ff7b6b; --grn:#5fd08f; --amb:#e6b450; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, "Segoe UI", Roboto, sans-serif; }
+  header { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line); background:var(--card); }
+  header h1 { font-size:17px; margin:0; }
+  .chip { font-size:12px; padding:2px 9px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+  .chip.ok { color:var(--grn); border-color:var(--grn); } .chip.bad { color:var(--red); border-color:var(--red); }
+  main { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:14px; padding:14px 18px; align-items:start; }
+  @media (max-width: 980px) { main { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  button, select, input { font:inherit; color:inherit; }
+  button { background:var(--pri2); color:var(--pri); border:1px solid var(--pri); border-radius:7px; padding:6px 11px; cursor:pointer; }
+  button.solid { background:var(--pri); color:#fff; } button:disabled { opacity:.45; cursor:default; }
+  button.sel { background:var(--pri); color:#fff; }
+  input[type=text], input[type=number], select { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:5px 7px; max-width:100%; }
+  #stage { position:relative; overflow:auto; max-height:78vh; border:1px solid var(--line); border-radius:8px; background:#0d1014; }
+  canvas { display:block; width:100%; height:auto; cursor:crosshair; }
+  .tabs { display:flex; gap:4px; margin-bottom:10px; flex-wrap:wrap; }
+  .tabs button { border-radius:7px 7px 0 0; } .pane { display:none; } .pane.on { display:block; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px 12px; margin:8px 0; }
+  label { display:flex; flex-direction:column; font-size:12px; color:var(--mut); gap:2px; }
+  .hint { color:var(--mut); font-size:12.5px; margin:4px 0 8px; }
+  #msg { margin:8px 0; padding:8px 10px; border-radius:8px; display:none; } #msg.err { display:block; background:#c0392b22; color:var(--red); } #msg.inf { display:block; background:var(--pri2); color:var(--pri); }
+  .res img { width:100%; border-radius:8px; border:1px solid var(--line); margin-top:8px; }
+  .flag { border-left:3px solid var(--red); padding:4px 8px; margin:4px 0; background:#c0392b14; }
+  .tech { border-left:3px solid var(--pri); padding:4px 8px; margin:5px 0; background:var(--pri2); }
+  table { border-collapse:collapse; width:100%; font-size:13px; } td, th { border-bottom:1px solid var(--line); padding:3px 6px; text-align:left; }
+  .big { font-size:26px; font-weight:700; } small { color:var(--mut); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Analisis Wajah dan Marking Bedah Plastik</h1>
+  <span class="chip ok">berjalan lokal di komputer ini</span>
+  <span class="chip" id="chipSam">SAM</span><span class="chip" id="chipFace">model wajah</span>
+  <span class="chip" id="chipScale">skala: belum ada</span>
+</header>
+<main>
+  <section class="card">
+    <div class="bar">
+      <input type="file" id="file" accept="image/*">
+      <input type="text" id="path" placeholder="atau path berkas lokal" size="22">
+      <button id="btnPath">Muat path</button>
+    </div>
+    <div class="bar" id="modes">
+      <button data-mode="line" class="sel">Garis luka</button>
+      <button data-mode="outline">Kontur kasar (AI)</button><button data-mode="pos">Titik + (di luka)</button><button data-mode="neg">Titik - (kulit sehat)</button>
+      <button data-mode="calib">Kalibrasi skala</button>
+      <button data-mode="acne">Edit jerawat</button>
+      <button data-mode="s_rstl">RSTL ahli</button><button data-mode="s_contour">Kontur ahli</button><button data-mode="s_suture">Jahitan ahli</button><button data-mode="s_excision">Elips ahli</button>
+      <button id="undo">Urung titik</button><button id="clear">Hapus tanda</button>
+    </div>
+    <div id="stage"><canvas id="cv" width="800" height="500"></canvas></div>
+    <p class="hint" id="modehint"></p>
+  </section>
+
+  <section class="card">
+    <div class="tabs" id="tabs">
+      <button data-pane="wound" class="sel">Luka dan parut</button><button data-pane="acne">Jerawat</button>
+      <button data-pane="surgeon">Validasi ahli</button><button data-pane="bio">Bioinformatika</button><button data-pane="face">Wajah</button><button data-pane="lines">Kerutan</button>
+    </div>
+    <div id="msg"></div>
+
+    <div class="pane on" id="p-wound">
+      <div class="grid">
+        <label>Jenis<select id="kind"><option value="laserasi_baru">Laserasi baru</option><option value="parut">Parut</option></select></label>
+        <label>Mekanisme<select id="mech"><option value="tajam">Tajam</option><option value="tumpul_remuk">Tumpul atau remuk</option><option value="gigitan">Gigitan</option><option value="lain">Lain</option></select></label>
+        <label>Kedalaman<select id="depth"><option value="tidak_diketahui">Belum diketahui</option><option value="superfisial">Superfisial</option><option value="subkutan">Subkutan</option><option value="otot_fascia">Otot atau fasia</option><option value="tulang_tulang_rawan">Tulang atau tulang rawan</option></select></label>
+        <label>Kontaminasi<select id="contam"><option value="bersih">Bersih</option><option value="ringan">Ringan</option><option value="berat">Berat</option></select></label>
+        <label>Kehilangan jaringan<select id="loss"><option value="tidak">Tidak</option><option value="kecil">Kecil</option><option value="bermakna">Bermakna</option></select></label>
+        <label>Jam sejak cedera<input type="number" id="hours" value="2" min="0"></label>
+        <label>Jenis parut<select id="scarType"><option value="linear_melebar">Linear melebar</option><option value="kontraktur_web">Kontraktur atau web</option><option value="hipertrofik">Hipertrofik</option><option value="keloid">Keloid</option><option value="cekung">Cekung</option></select></label>
+        <label>Usia parut (bulan)<input type="number" id="scarMonths" value="12" min="0"></label>
+        <label>Usia pasien (tahun)<input type="number" id="age" value="" min="0"></label>
+        <label>Wilayah (tanpa wajah)<select id="region"><option value="cheek">Pipi</option><option value="forehead">Dahi</option><option value="brow">Alis</option><option value="periorbital">Periorbital</option><option value="nose">Hidung</option><option value="lip">Bibir</option><option value="chin">Dagu</option><option value="outside_face_oval">Tepi wajah</option></select></label>
+        <label>Arah RSTL (derajat)<input type="number" id="rstl" placeholder="kosong = otomatis" step="1"></label>
+        <label>Jarak jahitan kulit (mm)<input type="number" id="spacing" value="4" step="0.5" min="2"></label>
+      </div>
+      <div class="bar">
+        <small>Lapisan gambar (kosong = otomatis dari rencana):</small>
+        <label style="flex-direction:row;gap:4px"><input type="checkbox" class="ly" value="suture_guide">jahitan</label>
+        <label style="flex-direction:row;gap:4px"><input type="checkbox" class="ly" value="ellipse">elips</label>
+        <label style="flex-direction:row;gap:4px"><input type="checkbox" class="ly" value="z_plasty">Z-plasty</label>
+        <label style="flex-direction:row;gap:4px"><input type="checkbox" class="ly" value="w_plasty">W-plasty</label>
+        <label style="flex-direction:row;gap:4px"><input type="checkbox" class="ly" value="gblc">broken line</label>
+      </div>
+      <div class="bar"><button class="solid" id="btnWound">Buat rencana marking</button><a id="dlWound" download="rencana_marking.png" style="display:none"><button>Unduh PNG</button></a></div>
+      <div class="res" id="woundRes"></div>
+    </div>
+
+    <div class="pane" id="p-acne">
+      <p class="hint">Deteksi otomatis hanya kandidat bintik merah. Anda yang memastikan hitungan akhir: klik penanda untuk menghapus, klik di tempat kosong untuk menambah (mode Edit jerawat). Hitungan akhir = jumlah penanda yang Anda biarkan.</p>
+      <div class="bar"><button class="solid" id="btnAcne">Deteksi kandidat</button><button id="btnAcneSave" disabled>Konfirmasi dan simpan</button></div>
+      <div class="res" id="acneRes"></div>
+    </div>
+
+    <div class="pane" id="p-surgeon">
+      <p class="hint">Untuk Fase 2 protokol. Ahli menggambar versinya SEBELUM melihat hasil alat dengan mode "RSTL ahli", "Kontur ahli", "Jahitan ahli", "Elips ahli" di atas foto. Centang mode buta, lalu minta alat membuat rencana di tab Luka (hasilnya disembunyikan sampai ahli mengirim).</p>
+      <div class="grid">
+        <label>ID kasus<input type="text" id="caseId" placeholder="mis. K001"></label>
+        <label>ID ahli<input type="text" id="surgeonId" placeholder="mis. S1"></label>
+        <label>Teknik utama menurut ahli<select id="sTech"><option>Penutupan primer berlapis</option><option>Eksisi elips</option><option>Z-plasty</option><option>W-plasty</option><option>Geometric broken line</option><option>Rekonstruksi defek (flap lokal atau cangkok kulit)</option><option>Observasi atau terapi non-bedah</option></select></label>
+        <label style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" id="blind">Mode buta (sembunyikan hasil alat)</label>
+      </div>
+      <div class="bar"><button class="solid" id="btnCompare">Bandingkan dengan alat</button></div>
+      <div class="res" id="cmpRes"></div>
+    </div>
+
+    <div class="pane" id="p-bio">
+      <p class="hint">Konteks biologis untuk riset, bukan alat diagnosis atau risiko pasien. Data dari Open Targets (snapshot bertanggal) dan Reactome 2022 lewat Enrichr.</p>
+      <h4>Ekspor interoperabilitas</h4>
+      <div class="bar"><input type="text" id="pseudo" placeholder="ID pseudonim (bukan nama)" value="pseudo-001"><button id="btnFhir">Ekspor FHIR R4 (hasil rencana terakhir)</button></div><div class="res" id="fhirRes"></div>
+      <h4>Konteks gen-penyakit</h4>
+      <div class="bar"><select id="condSel"><option>keloid</option><option>cleft lip</option><option>Bell palsy</option><option>acne vulgaris</option></select><button id="btnCtx">Tampilkan</button></div><div class="res" id="ctxRes"></div>
+      <h4>Pengayaan jalur dari daftar gen (ORA)</h4>
+      <textarea id="genes" rows="4" style="width:100%" placeholder="Tempel simbol gen, mis. DEG keloid vs kulit normal: COL1A1 COL1A2 COL3A1 TGFB1 SMAD3 ..."></textarea>
+      <div class="bar"><button class="solid" id="btnEnrich">Analisis pengayaan</button></div><div class="res" id="enrRes"></div>
+    </div>
+
+    <div class="pane" id="p-face">
+      <div class="bar"><button class="solid" id="btnFace">Analisis wajah</button></div>
+      <div class="res" id="faceRes"></div>
+    </div>
+
+    <div class="pane" id="p-lines">
+      <div class="bar"><button class="solid" id="btnLines">Peta garis dan kerutan</button></div>
+      <div class="res" id="linesRes"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const S = { pos:[], neg:[], sRstl:[], sContour:[], sSuture:[], sExc:[], pending:null, revealed:false, img:null, W:0, H:0, mode:'line', line:[], outline:[], calib:[], lesions:[], removed:0, added:0, ppm:null, face:false };
+const cv = $('#cv'), ctx = cv.getContext('2d');
+const HINT = { line:'Klik titik sepanjang luka dari ujung ke ujung (lebih banyak titik untuk luka melengkung).',
+  pos:'Titik POSITIF: klik di jaringan luka (tiap lobus untuk keloid atau lesi berlobus). Dipakai bersama kontur kasar.', neg:'Titik NEGATIF: klik di kulit sehat yang tidak boleh ikut.',
+  outline:'Klik garis kasar di sekeliling luka (tidak perlu pas). AI menempelkannya ke tepi jaringan.',
+  calib:'Klik dua titik yang jaraknya Anda ketahui (penggaris atau kartu skala), lalu isi panjang mm.',
+  acne:'Klik penanda untuk menghapus; klik di tempat kosong untuk menambah penanda manual.',
+  s_rstl:'Marking AHLI: klik dua titik sepanjang arah RSTL (garis tegangan kulit) yang Anda pilih.', s_contour:'Marking AHLI: klik poligon kontur luka atau parut menurut Anda.',
+  s_suture:'Marking AHLI: klik satu titik untuk tiap jahitan kulit yang akan Anda pasang.', s_excision:'Marking AHLI (opsional): klik poligon batas eksisi atau elips menurut Anda.' };
+
+function msg(t, kind='err') { const m = $('#msg'); m.textContent = t || ''; m.className = t ? kind : ''; }
+async function post(url, body) {
+  const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body||{}) });
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || 'Galat'); return j;
+}
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+const lw = () => Math.max(2, S.W / 600);
+
+function draw() {
+  if (!S.img) return;
+  ctx.drawImage(S.img, 0, 0);
+  const L = lw();
+  const dot = (p, c, r=L*2) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.fill(); };
+  const path = (pts, c, close=false, dash=[]) => { if (pts.length < 2) return; ctx.strokeStyle = c; ctx.lineWidth = L; ctx.setLineDash(dash); ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); if (close) ctx.closePath(); ctx.stroke(); ctx.setLineDash([]); };
+  path(S.line, '#ff3b30'); S.line.forEach(p => dot(p, '#ff3b30'));
+  path(S.outline, '#ffd60a', S.outline.length > 2, [L*3, L*2]); S.outline.forEach(p => dot(p, '#ffd60a'));
+  path(S.calib, '#30d5ff'); S.calib.forEach(p => dot(p, '#30d5ff'));
+  S.pos.forEach(p => dot(p, '#34c759', L*3)); S.neg.forEach(p => dot(p, '#ff3b30', L*3));
+  path(S.sRstl, '#34c759'); S.sRstl.forEach(p => dot(p, '#34c759'));
+  path(S.sContour, '#30d5ff', S.sContour.length > 2); S.sContour.forEach(p => dot(p, '#30d5ff'));
+  path(S.sExc, '#ff2d95', S.sExc.length > 2); S.sExc.forEach(p => dot(p, '#ff2d95'));
+  S.sSuture.forEach((p, i) => { dot(p, '#ffd60a', L*2.4); ctx.fillStyle = '#ffd60a'; ctx.font = `${Math.max(12, S.W/80)}px sans-serif`; ctx.fillText(i+1, p[0] + L*3, p[1] - L*3); });
+  ctx.font = `${Math.max(12, S.W/70)}px sans-serif`;
+  S.lesions.forEach((l, i) => { ctx.strokeStyle = l.source === 'manual' ? '#34c759' : '#ff453a'; ctx.lineWidth = L;
+    ctx.beginPath(); ctx.arc(l.x, l.y, Math.max(6, l.r_px*1.4), 0, 7); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillText(i+1, l.x + Math.max(6, l.r_px*1.4), l.y - Math.max(6, l.r_px*1.4)); });
+}
+function pos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
+
+cv.addEventListener('click', async e => {
+  if (!S.img) return; const p = pos(e);
+  if (S.mode === 'line') S.line.push(p);
+  else if (S.mode === 'outline') S.outline.push(p);
+  else if (S.mode === 'pos') S.pos.push(p);
+  else if (S.mode === 'neg') S.neg.push(p);
+  else if (S.mode === 's_rstl') { if (S.sRstl.length >= 2) S.sRstl = []; S.sRstl.push(p); }
+  else if (S.mode === 's_contour') S.sContour.push(p);
+  else if (S.mode === 's_suture') S.sSuture.push(p);
+  else if (S.mode === 's_excision') S.sExc.push(p);
+  else if (S.mode === 'calib') {
+    S.calib.push(p);
+    if (S.calib.length === 2) { const mm = parseFloat(prompt('Panjang sebenarnya antara dua titik (mm):', '10'));
+      if (mm > 0) { try { const r = await post('/api/calibrate', { p1:S.calib[0], p2:S.calib[1], mm }); setScale(r.ppm, r.ppm_source); msg('Skala diatur: ' + r.ppm.toFixed(2) + ' px/mm', 'inf'); } catch (x) { msg(x.message); } }
+      S.calib = []; }
+  } else if (S.mode === 'acne') {
+    const hit = S.lesions.findIndex(l => Math.hypot(l.x - p[0], l.y - p[1]) <= Math.max(10, l.r_px*1.8));
+    if (hit >= 0) { if (S.lesions[hit].source === 'manual') S.added--; else S.removed++; S.lesions.splice(hit, 1); }
+    else { S.lesions.push({ x:p[0], y:p[1], r_px:8, class:'manual', source:'manual', zone:null }); S.added++; }
+    acneSummary();
+  }
+  draw();
+});
+$('#undo').onclick = () => { ({line:S.line, outline:S.outline, pos:S.pos, neg:S.neg, calib:S.calib, s_rstl:S.sRstl, s_contour:S.sContour, s_suture:S.sSuture, s_excision:S.sExc}[S.mode] || []).pop(); draw(); };
+$('#clear').onclick = () => { S.line = []; S.outline = []; S.pos = []; S.neg = []; S.calib = []; S.sRstl = []; S.sContour = []; S.sSuture = []; S.sExc = []; draw(); };
+window.addEventListener('keydown', e => { if (e.key === 'Backspace' && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); $('#undo').click(); } });
+$$('#modes [data-mode]').forEach(b => b.onclick = () => { S.mode = b.dataset.mode; $$('#modes [data-mode]').forEach(x => x.classList.toggle('sel', x === b)); $('#modehint').textContent = HINT[S.mode]; });
+$('#modehint').textContent = HINT.line;
+$$('#tabs button').forEach(b => b.onclick = () => { $$('#tabs button').forEach(x => x.classList.toggle('sel', x === b)); $$('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.pane)); });
+
+function setScale(ppm, src) { S.ppm = ppm; const c = $('#chipScale'); c.textContent = ppm ? `skala: ${ppm.toFixed(1)} px/mm (${src})` : 'skala: belum ada'; c.className = 'chip' + (ppm ? ' ok' : ''); }
+function showImage(info) {
+  const im = new Image(); im.onload = () => { S.img = im; S.W = im.naturalWidth; S.H = im.naturalHeight; cv.width = S.W; cv.height = S.H;
+    S.line = []; S.outline = []; S.calib = []; S.lesions = []; S.removed = S.added = 0; draw(); }; im.src = info.image;
+  S.face = info.face; setScale(info.ppm, info.ppm_source);
+  let t = info.face ? 'Wajah terdeteksi. ' : 'Wajah frontal TIDAK terdeteksi: modul luka tetap bisa dipakai dengan kalibrasi skala manual dan arah RSTL manual. ';
+  if (info.gate) t += 'Kualitas: ' + info.gate.status + (info.gate.failures.length ? ' (' + info.gate.failures.join('; ') + ')' : '') + (info.gate.warnings.length ? ' [' + info.gate.warnings.join('; ') + ']' : '');
+  msg(t, info.gate && info.gate.status === 'CANNOT_ASSESS' ? 'err' : 'inf');
+}
+$('#file').onchange = async e => { const f = e.target.files[0]; if (!f) return; msg('Memuat...', 'inf');
+  const rd = new FileReader(); rd.onload = async () => { try { showImage(await post('/api/load', { data:rd.result, name:f.name })); } catch (x) { msg(x.message); } }; rd.readAsDataURL(f); };
+$('#btnPath').onclick = async () => { try { msg('Memuat...', 'inf'); showImage(await post('/api/load', { path:$('#path').value.trim() })); } catch (x) { msg(x.message); } };
+
+function ctxBody() { return { kind:$('#kind').value, mechanism:$('#mech').value, depth:$('#depth').value, contamination:$('#contam').value, tissue_loss:$('#loss').value,
+  hours:+$('#hours').value || 0, scar_type:$('#scarType').value, scar_months:+$('#scarMonths').value || 0, age_years:$('#age').value === '' ? null : +$('#age').value, region:$('#region').value }; }
+$('#btnWound').onclick = async () => {
+  try { msg('Memproses (segmentasi AI bisa beberapa detik)...', 'inf');
+    const layers = $$('.ly').filter(x => x.checked).map(x => x.value);
+    const r = await post('/api/wound', { points:S.line, outline:S.outline, pos:S.pos, neg:S.neg, context:ctxBody(), rstl_deg:$('#rstl').value, layers:layers.length ? layers : null, spacing_mm:+$('#spacing').value });
+    msg(''); renderWound(r);
+  } catch (x) { msg(x.message); } };
+function renderWound(r) {
+  if ($('#blind').checked && !S.revealed) { S.pending = r; $('#woundRes').innerHTML = '<div class="flag" style="border-color:var(--amb)">Mode buta: hasil alat disembunyikan sampai marking ahli dikirim di tab Validasi ahli.</div>'; return; }
+  const p = r.plan, rep = r.report;
+  let h = `<img src="${r.image}" alt="rencana marking"><p><span class="big">${rep.length_mm} mm</span> <small>panjang | sudut ke RSTL ${rep.mean_angle_to_rstl_deg} derajat | skala ${r.ppm.toFixed(1)} px/mm (${esc(r.ppm_source)})</small></p>`;
+  if (r.segmentation) h += `<small>Segmentasi: ${esc(r.segmentation.method)}${r.segmentation.stability !== undefined ? ' (kestabilan ' + r.segmentation.stability + ')' : ''}${r.segmentation.note ? ' - ' + esc(r.segmentation.note) : ''}</small>` + (r.segmentation.warning ? `<div class="flag" style="border-color:var(--amb)">${esc(r.segmentation.warning)}</div>` : '');
+  p.peringatan_merah.forEach(f => h += `<div class="flag">${esc(f)}</div>`);
+  p.catatan.forEach(f => h += `<div class="flag" style="border-color:var(--amb);background:#b7791f14">${esc(f)}</div>`);
+  p.teknik.forEach(t => h += `<div class="tech"><b>${t.peringkat}. ${esc(t.nama)}</b><br>${esc(t.alasan)}${t.ukuran ? '<br><i>' + esc(t.ukuran) + '</i>' : ''}${t.pilihan_per_region ? '<br>Pilihan: ' + t.pilihan_per_region.map(esc).join('; ') : ''}</div>`);
+  const sj = p.rencana_jahitan;
+  if (r.gate && r.gate.status !== 'PASS') h = `<div class="flag">Kualitas foto: ${esc(r.gate.status)}. ${r.gate.failures.map(esc).join('; ')} Titik wajah, skala dan wilayah mungkin tidak andal.</div>` + h;
+  if (rep.area_mm2 !== undefined) h += `<p><small>Lesi: luas ${rep.area_mm2} mm2; ${rep.major_mm} x ${rep.minor_mm} mm; elongasi ${rep.elongation}; solidity ${rep.solidity}; ${rep.linear ? 'linear' : '<b>tidak linear: tanpa garis jahitan otomatis</b>'}.</small></p>`;
+  if (!sj) h += '<h4>Rencana jahitan</h4><p>Tidak ada garis jahitan untuk rencana ini.</p>'; else
+  h += `<h4>Rencana jahitan</h4><table>${sj.lapisan.map(l => `<tr><td>${esc(l.lapis)}</td><td>${esc(l.bahan)}</td></tr>`).join('')}</table>
+    <p>Kulit: <b>${sj.perkiraan_jumlah_jahitan_kulit}</b> jahitan tiap ${sj.jarak_antar_jahitan_kulit_mm} mm; dalam: <b>${sj.perkiraan_jumlah_jahitan_dalam}</b> tiap ${sj.jarak_antar_jahitan_dalam_mm} mm; lepas: ${esc(sj.lepas_jahitan)}.<br><small>${esc(sj.urutan)}</small></p>`;
+  if (rep.critical_borders && rep.critical_borders.length) h += '<h4>Landmark kritis</h4>' + rep.critical_borders.map(c => `<div class="flag" style="border-color:var(--amb)">${esc(c.structure)}: ${c.min_distance_mm} mm${c.crosses ? ' (DILINTASI)' : ''}. Sejajarkan di titik ini lebih dulu.</div>`).join('');
+  h += `<h4>Tidak diketahui dari foto</h4><ul>${p.hal_yang_tidak_diketahui_dari_foto.map(u => '<li>' + esc(u) + '</li>').join('')}</ul><small>${esc(p.status)}</small>`;
+  $('#woundRes').innerHTML = h; const a = $('#dlWound'); a.href = r.image; a.style.display = 'inline';
+}
+
+function acneSummary() {
+  const n = S.lesions.length;
+  $('#acneRes').innerHTML = `<p><span class="big">${n}</span> penanda <small>(otomatis dibiarkan ${S.lesions.filter(l => l.source !== 'manual').length}, dihapus ${S.removed}, ditambah ${S.added})</small></p>` + ($('#acneRes').dataset.note || '');
+  $('#btnAcneSave').disabled = !n;
+}
+$('#btnAcne').onclick = async () => {
+  try { msg('Mendeteksi...', 'inf'); const r = await post('/api/acne', {}); S.lesions = r.lesions; S.removed = S.added = 0;
+    $('#acneRes').dataset.note = `<small>Mode: ${esc(r.mode)}. ${r.caveats.map(esc).join(' ')}</small>`; $$('#modes [data-mode]').find(b => b.dataset.mode === 'acne').click(); msg(''); acneSummary(); draw(); } catch (x) { msg(x.message); } };
+$('#btnAcneSave').onclick = async () => {
+  try { const r = await post('/api/acne/export', { lesions:S.lesions }); const rows = Object.entries(r.per_zona).sort((a, b) => b[1] - a[1]).map(([z, n]) => `<tr><td>${esc(z)}</td><td>${n}</td></tr>`).join('');
+    $('#acneRes').innerHTML += `<h4>Tersimpan: ${r.jumlah} lesi terkonfirmasi</h4><table>${rows}</table><small>${esc(r.disimpan)}</small>`; msg('Hitungan terkonfirmasi disimpan.', 'inf'); } catch (x) { msg(x.message); } };
+
+$('#btnFace').onclick = async () => {
+  try { msg('Menganalisis...', 'inf'); const r = await post('/api/face', {}); msg('');
+    if (r.refused) { $('#faceRes').innerHTML = '<div class="flag">Kualitas foto tidak layak diukur: ' + r.gate.failures.map(f => esc(f.message)).join('; ') + '</div>'; return; }
+    const rows = Object.entries(r.asymmetry_pairs_mm).map(([k, v]) => `<tr><td>${k}</td><td>${v} mm</td></tr>`).join('');
+    $('#faceRes').innerHTML = `<img src="${r.image}"><p>Asimetri rata-rata <b>${r.asymmetry_mean_mm} mm</b> (terbesar: ${esc(r.asymmetry_largest)}). Indeks nasal <b>${r.nose.nasal_index}</b> (${esc(r.nose.nasal_index_class)}), lebar alar ${r.nose.alar_width_mm} mm.</p><table>${rows}</table>
+      <small>Warna di gambar = penyimpangan dari acuan yang dikutip, bukan rekomendasi tindakan.</small>`; } catch (x) { msg(x.message); } };
+$('#btnLines').onclick = async () => {
+  try { msg('Menganalisis (beberapa detik)...', 'inf'); const r = await post('/api/lines', {}); msg('');
+    if (r.refused) { $('#linesRes').innerHTML = '<div class="flag">Kualitas foto tidak layak diukur.</div>'; return; }
+    const rows = Object.entries(r.zones).map(([z, v]) => `<tr><td>${esc(z)}</td><td>${v.fine_density_mm_per_cm2 ?? '-'}</td><td>${v.fold_density_mm_per_cm2 ?? '-'}</td><td>${esc(v.status.split(':')[0])}</td></tr>`).join('');
+    $('#linesRes').innerHTML = `<img src="${r.image}"><table><tr><th>zona</th><th>halus mm/cm2</th><th>lipatan mm/cm2</th><th>status</th></tr>${rows}</table><small>Bukan estimasi usia dan bukan keputusan terapi. Zona yang tidak dianalisis tidak berarti normal.</small>`; } catch (x) { msg(x.message); } };
+
+$('#btnCompare').onclick = async () => {
+  try { const r = await post('/api/surgeon_compare', { case_id:$('#caseId').value, surgeon_id:$('#surgeonId').value, technique:$('#sTech').value,
+      contour_px:S.sContour, rstl:S.sRstl.length === 2 ? S.sRstl : null, sutures:S.sSuture, excision_px:S.sExc });
+    const m = r.metrics, rows = [];
+    if (m.contour) rows.push(['Kontur: Dice / IoU', m.contour.dice + ' / ' + m.contour.iou]);
+    if (m.rstl_angle_difference_deg !== undefined) rows.push(['Selisih sudut RSTL', m.rstl_angle_difference_deg + ' derajat']);
+    if (m.sutures) rows.push(['Jahitan: alat / ahli (selisih)', m.sutures.n_tool + ' / ' + m.sutures.n_surgeon + ' (' + m.sutures.count_difference + ')'], ['Jarak jahitan cocok: median / maks', m.sutures.median_distance_mm + ' / ' + m.sutures.max_distance_mm + ' mm'], ['Selisih jarak antar jahitan (ahli dikurangi alat)', m.sutures.spacing_difference_mm + ' mm']);
+    if (m.excision) rows.push(['Elips: IoU', m.excision.iou]);
+    if (m.technique) rows.push(['Teknik utama sama', m.technique.primary_match ? 'ya' : 'tidak'], ['Pilihan ahli ada di 3 teratas alat', m.technique.in_top3 ? 'ya' : 'tidak'], ['Teknik utama alat', m.technique.tool_primary]);
+    const s = r.summary_all_cases;
+    $('#cmpRes').innerHTML = '<table>' + rows.map(x => `<tr><td>${esc(x[0])}</td><td>${esc(x[1])}</td></tr>`).join('') + `</table><p><small>Terkumpul ${s.n_rows} baris. Dice 0,85 atau lebih: ${s['fraction_dice_ge_0.85'] ?? '-'}; RSTL dalam 15 derajat: ${s.fraction_rstl_within_15deg ?? '-'}; teknik utama sama: ${s.fraction_primary_technique_match ?? '-'}. Berkas: ${esc(r.csv)}</small></p>`;
+    if (S.pending) { S.revealed = true; renderWound(S.pending); S.revealed = false; S.pending = null; }
+    msg('Perbandingan tersimpan.', 'inf'); } catch (x) { msg(x.message); } };
+
+$('#btnFhir').onclick = async () => { try { const r = await post('/api/fhir', { pseudonym:$('#pseudo').value }); const a = document.createElement('a'); a.download = 'ekspor_fhir.json'; a.href = URL.createObjectURL(new Blob([JSON.stringify(r.bundle, null, 2)], { type:'application/json' })); a.click();
+    $('#fhirRes').innerHTML = `<small>Bundle FHIR R4B valid dibuat (${r.bundle.entry.length} sumber daya), status 'unconfirmed'. Tersimpan: ${esc(r.saved)}</small>`; msg(''); } catch (x) { msg(x.message); } };
+$('#btnCtx').onclick = async () => { try { const r = await post('/api/context', { condition:$('#condSel').value }); $('#ctxRes').innerHTML = `<p><b>${esc(r.name)}</b> (${esc(r.id)}) - ${r.n_associated_targets} gen terkait. <small>Snapshot ${esc(r.retrieved)}.</small></p><table><tr><th>Gen</th><th>Skor asosiasi</th><th>Nama</th></tr>` + r.top_targets.slice(0, 10).map(t => `<tr><td>${esc(t.symbol)}</td><td>${t.score}</td><td>${esc(t.name)}</td></tr>`).join('') + `</table><small>${esc(r.note)}</small>`; msg(''); } catch (x) { msg(x.message); } };
+$('#btnEnrich').onclick = async () => { try { msg('Menganalisis...', 'inf'); const r = await post('/api/enrich', { genes:$('#genes').value }); msg('');
+    $('#enrRes').innerHTML = `<p><small>${r.n_in_universe} dari ${r.n_query} simbol dikenali; ${r.significant_count} jalur FDR 0,05 atau kurang. ${esc(r.library)}.${r.unknown_symbols.length ? ' Tidak dikenali: ' + r.unknown_symbols.slice(0, 15).map(esc).join(', ') : ''}</small></p><table><tr><th>Jalur</th><th>Overlap</th><th>FDR</th></tr>` + r.top.map(t => `<tr><td>${esc(t.term)}</td><td>${t.overlap}/${t.set_size}</td><td>${t.fdr.toExponential(1)}</td></tr>`).join('') + `</table><small>${esc(r.caveat)}</small>`; } catch (x) { msg(x.message); } };
+
+fetch('/api/status').then(r => r.json()).then(s => { const a = $('#chipSam'), b = $('#chipFace');
+  a.textContent = s.sam ? 'segmentasi AI siap' : 'segmentasi AI tidak ada (pakai GrabCut)'; a.className = 'chip ' + (s.sam ? 'ok' : 'bad');
+  b.textContent = s.face_model ? 'model wajah siap' : 'model wajah tidak ada'; b.className = 'chip ' + (s.face_model ? 'ok' : 'bad'); });
+</script>
+</body>
+</html>
