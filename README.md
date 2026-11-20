@@ -61,20 +61,16 @@ A fibrosis signature of 23 collagen, growth factor and matrix genes recovered ex
 
 ## Gallery
 
-Selected outputs from development and testing, covering wounds, scars, palsy, wrinkles, acne and the facial atlas. Photographs were taken from Wikimedia Commons under public domain, CC BY or CC BY SA terms, and credit belongs to the original file pages. All plans are decision support examples and have not been checked by surgeons.
+Selected outputs from development and testing, each showing a different kind of annotation and none repeating another. Photographs were taken from Wikimedia Commons under public domain, CC BY or CC BY SA terms, and credit belongs to the original file pages. All plans are decision support examples and have not been checked by surgeons.
 
 <table>
   <tr>
     <td width="50%" valign="top"><img src="assets/gallery/wound_suture_plan.jpg" width="100%" alt="Wound plan with numbered suture marks in halving order, on a wound simulation mannequin."><br><sub>Wound plan with numbered suture marks in halving order, on a wound simulation mannequin.</sub></td>
-    <td width="50%" valign="top"><img src="assets/gallery/serial_z_plasty.jpg" width="100%" alt="Serial Z plasty alternative for the same wound, with alternating limbs."><br><sub>Serial Z plasty alternative for the same wound, with alternating limbs.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/contour_sam_vs_grabcut.jpg" width="100%" alt="Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line."><br><sub>Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line.</sub></td>
   </tr>
   <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/closure_illustration.jpg" width="100%" alt="Schematic illustration before and after closure. It is not a prediction."><br><sub>Schematic illustration before and after closure. It is not a prediction.</sub></td>
     <td width="50%" valign="top"><img src="assets/gallery/keloid_nonlinear.jpg" width="100%" alt="Facial keloid recognised as a nonlinear lesion, so no suture line is drawn."><br><sub>Facial keloid recognised as a nonlinear lesion, so no suture line is drawn.</sub></td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/palsy_symmetry.jpg" width="100%" alt="Facial palsy portrait with proportions and symmetry flags against cited references."><br><sub>Facial palsy portrait with proportions and symmetry flags against cited references.</sub></td>
-    <td width="50%" valign="top"><img src="assets/gallery/wrinkle_map.jpg" width="100%" alt="Wrinkle map by zone, with hair removed and unanalysed zones marked."><br><sub>Wrinkle map by zone, with hair removed and unanalysed zones marked.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/wrinkle_map.jpg" width="100%" alt="Wrinkle map by zone on darker skin, with hair removed and unanalysed zones marked."><br><sub>Wrinkle map by zone on darker skin, with hair removed and unanalysed zones marked.</sub></td>
   </tr>
   <tr>
     <td width="50%" valign="top"><img src="assets/gallery/acne_candidates.jpg" width="100%" alt="Colour based acne lesion candidates, to be confirmed by the clinician."><br><sub>Colour based acne lesion candidates, to be confirmed by the clinician.</sub></td>
