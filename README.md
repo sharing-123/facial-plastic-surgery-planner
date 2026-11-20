@@ -55,9 +55,9 @@ On a wound simulation mannequin, a rough outline of 9 points produced a contour 
 A fibrosis signature of 23 collagen, growth factor and matrix genes recovered extracellular matrix organisation and collagen pathways with a false discovery rate below one in a million. Random lists of 25 and 100 genes drawn from the library produced at least one significant pathway in 0.7 and 0.3 percent of 300 draws each. An earlier version that removed pathways by observed overlap before applying the correction inflated this rate to 53 percent, which is why every eligible pathway now enters the correction. The exported FHIR bundles passed validation against the R4B models.
 
 <p align="center">
-  <img src="assets/figure_marking.jpg" width="86%" alt="Three panels showing quantitative facial analysis, a before and after overlay of the planned correction and the simulated result on a public portrait">
+  <img src="assets/figure_marking.jpg" width="86%" alt="Three panels showing the segmented wound contour, the numbered suture marking and a schematic of the closed wound on a wound simulation mannequin">
 </p>
-<p align="center"><sub>Example output on a public portrait with facial palsy from Wikimedia Commons (CC BY-SA 3.0, attribution to the original file page). Left, landmark based analysis. Centre, overlay of the planned correction. Right, a simulated 6 mm lift of the oral commissure, shown as an illustration and not as a predicted outcome.</sub></p>
+<p align="center"><sub>Example output on a wound simulation mannequin. Left, the contour found by the segmentation model. Centre, the suture marking with numbers in halving order. Right, a schematic of the closed wound, shown as an illustration and not as a predicted outcome.</sub></p>
 
 ## Gallery
 
@@ -65,7 +65,7 @@ Selected outputs from development and testing, each showing a different kind of 
 
 <table>
   <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/wound_suture_plan.jpg" width="100%" alt="Wound plan with numbered suture marks in halving order, on a wound simulation mannequin."><br><sub>Wound plan with numbered suture marks in halving order, on a wound simulation mannequin.</sub></td>
+    <td width="50%" valign="top"><img src="assets/gallery/palsy_symmetry.jpg" width="100%" alt="Facial palsy portrait with proportions and symmetry flags against cited references."><br><sub>Facial palsy portrait with proportions and symmetry flags against cited references.</sub></td>
     <td width="50%" valign="top"><img src="assets/gallery/contour_sam_vs_grabcut.jpg" width="100%" alt="Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line."><br><sub>Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line.</sub></td>
   </tr>
   <tr>
