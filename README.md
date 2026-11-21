@@ -2,7 +2,7 @@
   <img src="assets/banner.webp" width="100%" alt="Animated rotating three dimensional facial mesh with a scan plane, a wound centre line, numbered suture marks and a millimetre counter">
 </p>
 
-<h1 align="center">An Artificial Intelligence and Bioinformatics Framework for Quantitative Marking and Suture Planning of Facial Wounds and Scars in Plastic Surgery</h1>
+<h1 align="center">Image Based Marking and Suture Planning of Facial Wounds and Scars: A Bioinformatic and Deep Learning Study</h1>
 
 <p align="center">
   Muhammad Allam Rafi<sup>1</sup> and Cindy Rizky Afrilia<sup>2</sup><br>
@@ -111,7 +111,7 @@ The code is available at https://github.com/sharing-123/facial-plastic-surgery-p
 ```bibtex
 @software{rafi_afrilia_2026_facial_planner,
   author  = {Rafi, Muhammad Allam and Afrilia, Cindy Rizky},
-  title   = {An Artificial Intelligence and Bioinformatics Framework for Quantitative Marking and Suture Planning of Facial Wounds and Scars in Plastic Surgery},
+  title   = {Image Based Marking and Suture Planning of Facial Wounds and Scars: A Bioinformatic and Deep Learning Study},
   year    = {2026},
   url     = {https://github.com/sharing-123/facial-plastic-surgery-planner},
   note    = {Research prototype. OSF DOI and Zenodo DOI to be assigned}
