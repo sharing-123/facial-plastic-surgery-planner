@@ -20,3 +20,9 @@ deploy/vercel/tests/golden.json
 !assets/banner.webp
 !assets/figure_marking.jpg
 !assets/gallery/*.jpg
+
+# Python package build artifacts
+/build/
+/dist/
+*.egg-info/
+.pytest_cache/

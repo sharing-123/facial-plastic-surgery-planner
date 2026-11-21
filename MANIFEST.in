@@ -1,0 +1,13 @@
+include LICENSE NOTICE.md setup.py
+include markings.py surgical_planner.py wound_planner.py face_proportions.py
+include smile_symmetry.py face_zones.py quality_gate.py sam_segment.py
+include wound_segment.py surgeon_compare.py
+include bioinfo/*.py
+include docs/PYPI_README.md
+recursive-include tests *.py
+exclude face_landmarker.task
+prune models
+prune test_data
+prune assets
+prune app_output
+prune demo_output

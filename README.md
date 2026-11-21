@@ -117,3 +117,7 @@ The code is available at https://github.com/sharing-123/facial-plastic-surgery-p
   note    = {Research prototype. OSF DOI and Zenodo DOI to be assigned}
 }
 ```
+
+## Python package
+
+See the [Python installation and integration guide](docs/PYPI_README.md) for the importable API, examples, tests and development instructions.
