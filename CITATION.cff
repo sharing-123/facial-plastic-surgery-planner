@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata below.
-title: "Image Based Marking and Suture Planning of Facial Wounds and Scars: A Bioinformatic and Deep Learning Study"
+title: "Quantitative Marking and Suture Planning for Facial Wounds and Scars from Single Photographs: A Bioinformatic and Deep Learning Study"
 type: software
 version: 0.1.0
 date-released: 2026-11-20
