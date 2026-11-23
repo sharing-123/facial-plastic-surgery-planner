@@ -53,10 +53,13 @@ No example is synthetic.
 |---|---|
 | Facial palsy | How the two sides sit and move (rest, smile, brow, eye closure), single photos or a before/after pair, and what is usually done by time since onset |
 | Cleft lip and palate | Twelve-point right-against-left reading of real infants, a real before/after repair pair, and the usual sequence of care by age |
+| Burns | Depth, what is usually done by depth and site (heal, graft or flap), the team and a map of donor sites; outline a burn on your own photograph |
 | Aesthetic planning | Nose (side-view angles, Goode ratio, a real rhinoplasty before/after, planned profile and methods), smile, and skin lines with a softening preview |
 | Wounds and scars | A real marking example; upload your own photograph in the Photo tab |
 
 **Live demo:** https://172-232-225-76.sslip.io
+
+The left, middle and right panels can each be closed, so the results can fill the screen. The deeper management references tag each step with the roles involved (for example neurosurgery and plastic surgery in facial palsy) and where donor tissue is taken.
 
 ## Photo, video or side photo
 

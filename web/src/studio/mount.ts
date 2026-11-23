@@ -10,6 +10,7 @@ import { hasMotion, motionHtml, mountVideo, paintMotion } from './video';
 import { mountNose, noseHtml, wireNose } from './nose';
 import { cleftHtml, mountCleft, paintCleft } from './cleft';
 import { mountWrinkles, wireWrinkles, wrinkleHtml } from './wrinkles';
+import { burnHtml, mountBurn, wireBurn } from './burn';
 import { drawPlanImages } from './draw';
 import { api, ApiError, type CaseRecord } from './api';
 import { ACCEPT, PhotoError, loadPhotoFile, loadPhotoUrl, openCamera, type CameraSession } from './photo';
@@ -31,8 +32,43 @@ let playing = false;
 let cams: CameraSession | undefined;
 let wired = false;
 
+type PanelKey = 'rail' | 'stage' | 'results';
+const panels: Record<PanelKey, boolean> = { rail: true, stage: true, results: true };
+try { const saved = JSON.parse(localStorage.getItem('fs-panels') ?? 'null'); if (saved) for (const k of Object.keys(panels) as PanelKey[]) if (typeof saved[k] === 'boolean') panels[k] = saved[k]; } catch { /* storage unavailable: all panels open */ }
+
+function togglePanel(k: PanelKey): void {
+  const open = (Object.keys(panels) as PanelKey[]).filter(x => panels[x]);
+  if (panels[k] && open.length === 1) return; // the last open panel stays
+  panels[k] = !panels[k];
+  try { localStorage.setItem('fs-panels', JSON.stringify(panels)); } catch { /* ignore */ }
+  applyPanels();
+  view2d?.fit(); viewer?.resize();
+  window.dispatchEvent(new Event('resize'));
+}
+
+/** Shows or hides the three columns and lets the open ones share the width. */
+function applyPanels(): void {
+  const studio = document.querySelector<HTMLElement>('.studio'); if (!studio) return;
+  const cls = studio.classList;
+  cls.toggle('no-rail', !panels.rail); cls.toggle('no-stage', !panels.stage); cls.toggle('no-results', !panels.results);
+  const wide = window.matchMedia('(min-width: 1181px)').matches;
+  const cols: string[] = [];
+  if (panels.rail) cols.push('296px');
+  if (panels.stage) cols.push('minmax(0, 1fr)');
+  if (panels.results) cols.push(panels.stage ? '420px' : 'minmax(0, 1fr)');
+  studio.style.gridTemplateColumns = wide ? cols.join(' ') : '';
+  cls.toggle('only-results', panels.results && !panels.stage && !panels.rail);
+  document.querySelectorAll<HTMLElement>('[data-pnl]').forEach(b => b.setAttribute('aria-pressed', String(panels[b.dataset.pnl as PanelKey])));
+}
+window.addEventListener('resize', () => applyPanels());
+
 export function mountStudio(root: HTMLElement): void {
   root.innerHTML = `
+  <div class="panel-toggles" role="group" aria-label="${T('Panels', 'Panel')}">
+    <button type="button" data-pnl="rail" aria-pressed="true" title="${T('Left panel: photo and tools', 'Panel kiri: foto dan alat')}"><i class="pg l"></i>${T('Left', 'Kiri')}</button>
+    <button type="button" data-pnl="stage" aria-pressed="true" title="${T('Middle panel: the picture', 'Panel tengah: gambar')}"><i class="pg m"></i>${T('Middle', 'Tengah')}</button>
+    <button type="button" data-pnl="results" aria-pressed="true" title="${T('Right panel: results', 'Panel kanan: hasil')}"><i class="pg r"></i>${T('Right', 'Kanan')}</button>
+  </div>
   <div class="studio">
     <aside class="rail" aria-label="${T('Photo and tools', 'Foto dan alat')}">
       <section class="card">
@@ -68,7 +104,7 @@ export function mountStudio(root: HTMLElement): void {
     </aside>
     <main class="stage">
       <div class="tabs" role="tablist">
-        ${([['photo', 'Photo', 'Foto', ''], ['3d', '3D', '3D', ''], ['plan', 'Plan', 'Rencana', ''], ['video', 'Movement', 'Gerakan', 'video'], ['nose', 'Nose', 'Hidung', 'side'], ['cleft', 'Cleft', 'Sumbing', 'photo'], ['skin', 'Lines', 'Kerutan', 'photo']] as const).map(([k, en, id, b]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}${b ? `<small class="tab-badge ${b}">${b === 'video' ? T('video', 'video') : b === 'side' ? T('side photo', 'foto samping') : T('photo', 'foto')}</small>` : ''}</button>`).join('')}
+        ${([['photo', 'Photo', 'Foto', ''], ['3d', '3D', '3D', ''], ['plan', 'Plan', 'Rencana', ''], ['video', 'Movement', 'Gerakan', 'video'], ['nose', 'Nose', 'Hidung', 'side'], ['cleft', 'Cleft', 'Sumbing', 'photo'], ['skin', 'Lines', 'Kerutan', 'photo'], ['burn', 'Burn', 'Luka bakar', 'photo']] as const).map(([k, en, id, b]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}${b ? `<small class="tab-badge ${b}">${b === 'video' ? T('video', 'video') : b === 'side' ? T('side photo', 'foto samping') : T('photo', 'foto')}</small>` : ''}</button>`).join('')}
         <span class="busy" id="busy" hidden></span>
       </div>
       <div class="views">
@@ -85,6 +121,7 @@ export function mountStudio(root: HTMLElement): void {
         <div class="view" data-view="nose" hidden id="v-nose"></div>
         <div class="view" data-view="cleft" hidden id="v-cleft"></div>
         <div class="view" data-view="skin" hidden id="v-skin"></div>
+        <div class="view" data-view="burn" hidden id="v-burn"></div>
       </div>
     </main>
     <aside class="results" id="results" aria-label="${T('Results', 'Hasil')}"></aside>
@@ -93,10 +130,13 @@ export function mountStudio(root: HTMLElement): void {
   <div class="modal" id="examples" hidden><div class="modal-box wide"><div class="row"><h4>${T('Example outputs', 'Contoh hasil')}</h4><button class="btn ghost small" data-act="examples-close">${T('Close', 'Tutup')}</button></div><div class="ex-body"></div></div></div>
   <div class="modal" id="ask" hidden><div class="modal-box small"><p id="ask-q"></p><input id="ask-in" type="number" step="0.1" min="1" max="300"><div class="row"><button class="btn" data-act="ask-ok">OK</button><button class="btn ghost" data-act="ask-no">${T('Cancel', 'Batal')}</button></div></div></div>`;
 
+  const tabsEl = root.querySelector<HTMLElement>('.tabs');
+  tabsEl?.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { tabsEl.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
   mountVideo(document.getElementById('v-video')!, () => renderResults());
   mountNose(document.getElementById('v-nose')!, () => renderResults());
   mountCleft(document.getElementById('v-cleft')!, () => renderResults());
   mountWrinkles(document.getElementById('v-skin')!, () => renderResults());
+  mountBurn(document.getElementById('v-burn')!, () => renderResults());
   view2d = new View2D(document.getElementById('v2d')!);
   view2d.onScaleRequest = (a, b) => askLength(a, b);
   wire(root);
@@ -107,6 +147,7 @@ export function mountStudio(root: HTMLElement): void {
     onLang(() => { viewer?.dispose(); viewer = undefined; signature3d = ''; mountStudio(root); });
   }
   (document.getElementById('case-code') as HTMLInputElement).value = state.code;
+  applyPanels();
   render();
   void refreshCases();
   applyDom(root);
@@ -128,8 +169,9 @@ function wire(root: HTMLElement): void {
   const code = document.getElementById('case-code') as HTMLInputElement;
   code.addEventListener('input', () => { state.code = code.value.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24); });
   root.addEventListener('click', e => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-act],[data-tab],[data-tool],[data-layer],[data-sample],[data-stage]');
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-act],[data-tab],[data-tool],[data-layer],[data-sample],[data-stage],[data-pnl]');
     if (!el) return;
+    if (el.dataset.pnl) return togglePanel(el.dataset.pnl as PanelKey);
     if (el.dataset.tab) return setTab(el.dataset.tab as Tab);
     if (el.dataset.tool) { patch({ tool: el.dataset.tool as typeof state.tool }); return; }
     if (el.dataset.layer) { const k = el.dataset.layer as keyof typeof state.layers; patch({ layers: { ...state.layers, [k]: !state.layers[k] } }); return; }
@@ -313,7 +355,7 @@ function updatePeelLabel(): void {
 /* ------------------------------------------------------------------- render */
 function render(): void {
   const s = state;
-  document.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === s.tab)));
+  document.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => { const on = b.dataset.tab === s.tab; b.setAttribute('aria-selected', String(on)); if (on) b.scrollIntoView({ inline: 'nearest', block: 'nearest' }); });
   document.querySelectorAll<HTMLElement>('.view').forEach(v => { v.hidden = v.dataset.view !== s.tab; });
   document.querySelectorAll<HTMLElement>('[data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === s.tool)));
   document.querySelectorAll<HTMLElement>('[data-layer]').forEach(b => b.setAttribute('aria-pressed', String(s.layers[b.dataset.layer as keyof typeof s.layers])));
@@ -349,9 +391,9 @@ function renderResults(): void {
   const stage = Math.min(STAGE_COUNT - 1, Math.floor(Number((document.getElementById('stage') as HTMLInputElement | null)?.value ?? 0)));
   const has = !!state.photo && !!state.gate && state.gate.status !== 'CANNOT_ASSESS';
   const refused = state.gate?.status === 'CANNOT_ASSESS';
-  if (state.tab === 'video' || state.tab === 'nose' || state.tab === 'cleft' || state.tab === 'skin') {
-    el.innerHTML = `<div class="results-in">${state.tab === 'video' ? motionHtml() : state.tab === 'nose' ? noseHtml() : state.tab === 'cleft' ? cleftHtml() : wrinkleHtml()}</div>`;
-    if (state.tab === 'video') paintMotion(el); else if (state.tab === 'nose') wireNose(el); else if (state.tab === 'cleft') paintCleft(el); else wireWrinkles(el);
+  if (state.tab === 'video' || state.tab === 'nose' || state.tab === 'cleft' || state.tab === 'skin' || state.tab === 'burn') {
+    el.innerHTML = `<div class="results-in">${state.tab === 'video' ? motionHtml() : state.tab === 'nose' ? noseHtml() : state.tab === 'cleft' ? cleftHtml() : state.tab === 'burn' ? burnHtml() : wrinkleHtml()}</div>`;
+    if (state.tab === 'video') paintMotion(el); else if (state.tab === 'nose') wireNose(el); else if (state.tab === 'cleft') paintCleft(el); else if (state.tab === 'burn') wireBurn(el); else wireWrinkles(el);
     return;
   }
   const body = !state.photo ? `<p class="muted">${T('Results appear here after you add a photograph.', 'Hasil muncul di sini setelah Anda menambahkan foto.')}</p>`

@@ -13,7 +13,7 @@ import type { Tab } from './store';
  * They are published patient photographs used only to show how the tools read a real face. Nothing here is a diagnosis, and the
  * measurements never choose a treatment.
  */
-export type Cat = 'palsy' | 'cleft' | 'aesthetic' | 'wound';
+export type Cat = 'palsy' | 'cleft' | 'burn' | 'aesthetic' | 'wound';
 export interface RealCase {
   id: string; cat: Cat; tab: Tab; need: 'photo' | 'video';
   /** first file is the rest photo when there are several; one file is read statically */
@@ -72,6 +72,8 @@ export const REAL: RealCase[] = [
     title: ['Lines: deep forehead and eye-corner lines', 'Garis: dahi dan sudut mata yang dalam'], sub: ['A real close-up portrait. Lines by zone, a softening preview, and what is usually done.', 'Potret dekat nyata. Garis per zona, pratinjau penghalusan, dan apa yang lazim dikerjakan.'] },
   { id: 'r-lines-woman', cat: 'aesthetic', tab: 'skin', need: 'photo', files: ['elderly_gambian_woman_face_portrait.jpg'],
     title: ['Lines: fine lines and folds in older skin', 'Garis: garis halus dan lipatan pada kulit tua'], sub: ['A real close-up portrait read the same way.', 'Potret dekat nyata dibaca dengan cara yang sama.'] },
+  { id: 'r-burn-donor', cat: 'burn', tab: 'burn', need: 'photo', files: ['huid_verwijderdt_voor_transplantatie.jpg'],
+    title: ['Facial burn: graft or flap, and where the skin comes from', 'Luka bakar wajah: cangkok atau flap, dan dari mana kulit diambil'], sub: ['Depth, the usual options by site, the team, and a map of donor sites. The picture is a real split-graft donor site on the thigh. Add your own burn photograph to outline it.', 'Kedalaman, pilihan lazim menurut lokasi, tim, dan peta lokasi donor. Gambar adalah lokasi donor cangkok terbelah nyata pada paha. Tambahkan foto luka bakar Anda sendiri untuk dikonturkan.'] },
   { id: 'r-wound-mannequin', cat: 'wound', tab: 'photo', need: 'photo', files: ['wound_mannequin_marking.jpg'], still: true,
     title: ['Wound marking on a simulation mannequin', 'Marking luka pada manekin simulasi'], sub: ['A real photograph with the segmented contour, numbered sutures and a schematic closure, from the Python prototype. Open it to read.', 'Foto nyata dengan kontur tersegmentasi, jahitan bernomor dan skema penutupan, dari prototipe Python. Buka untuk membaca.'] },
 ];
@@ -81,6 +83,7 @@ const CATS: Array<{ cat: Cat; title: [string, string
 ]; sub: [string, string] }> = [
   { cat: 'palsy', title: ['Facial palsy', 'Kelumpuhan wajah'], sub: ['Real photographs: how the two sides sit and move, and what is usually done by time since onset. A video is needed to judge movement.', 'Foto nyata: letak dan gerak kedua sisi, dan apa yang lazim dikerjakan menurut waktu sejak onset. Video diperlukan untuk menilai gerakan.'] },
   { cat: 'cleft', title: ['Cleft lip and palate', 'Bibir sumbing dan celah langit-langit'], sub: ['Real photographs: twelve points, right against left, and the usual sequence of care by age.', 'Foto nyata: dua belas titik, kanan lawan kiri, dan urutan perawatan lazim menurut usia.'] },
+  { cat: 'burn', title: ['Facial burns: graft, flap and donor sites', 'Luka bakar wajah: cangkok, flap dan lokasi donor'], sub: ['Whether the burn is left to heal, grafted or covered with a flap, the roles of the team, and where the donor tissue is taken.', 'Apakah luka bakar dibiarkan sembuh, dicangkok atau ditutup flap, peran tim, dan dari mana jaringan donor diambil.'] },
   { cat: 'aesthetic', title: ['Aesthetic planning: nose, smile, lines', 'Perencanaan estetika: hidung, senyum, garis'], sub: ['Real photographs with a preview of the geometry and the methods usually used. What to change, if anything, is the patient\'s choice.', 'Foto nyata dengan pratinjau geometri dan metode yang lazim dipakai. Apa yang diubah, bila ada, adalah pilihan pasien.'] },
   { cat: 'wound', title: ['Wounds and scars', 'Luka dan parut'], sub: ['Upload your own photograph in the Photo tab to measure size, direction against the skin lines, marking and plan. Below is a real marking example.', 'Unggah foto Anda sendiri di tab Foto untuk mengukur ukuran, arah terhadap garis kulit, marking dan rencana. Di bawah ini contoh marking nyata.'] },
 ];
@@ -128,6 +131,8 @@ export async function runReal(id: string, setTab: (t: Tab) => void): Promise<voi
     await loadCleftUrl(url(r.files[0]), r.files[0], r.points, { pairUrl: r.pair ? url(r.pair) : undefined, palate: r.palate });
   } else if (r.tab === 'nose') {
     await loadNoseUrl(url(r.files[0]), r.files[0], r.points ?? {}, r.pair && r.afterPoints ? { url: url(r.pair), frac: r.afterPoints } : undefined);
+  } else if (r.tab === 'burn') {
+    /* the tab opens empty on purpose: the guide and the donor map work without a photograph */
   } else if (r.tab === 'skin') {
     await runWrinkleUrl(url(r.files[0]), r.files[0]);
   }
