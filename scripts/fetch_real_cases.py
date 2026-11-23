@@ -17,7 +17,7 @@ from pathlib import Path
 
 from PIL import Image
 
-UA = "FaceStudioFixtures/1.0 (research prototype; open-licence test images)"
+UA = "FaceStudio/1.0 (https://github.com/sharing-123/facial-plastic-surgery-planner; open-licence research test images) python-urllib/3"
 OK = re.compile(r"^(CC0|Public domain|PD|CC BY(-SA)? [0-9.]+)", re.I)
 
 
@@ -48,7 +48,7 @@ def main() -> None:
         slug0 = re.sub(r"[^a-z0-9]+", "_", title.replace("File:", "").rsplit(".", 1)[0].lower()).strip("_")[:48]
         if (out / f"{slug0}.jpg").is_file() and f"{slug0}.jpg" in att:
             continue
-        time.sleep(12)
+        time.sleep(6)
         try:
             ii = info(title)
             ok_ = True

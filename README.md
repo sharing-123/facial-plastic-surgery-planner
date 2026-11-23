@@ -44,6 +44,20 @@ docker compose up --build   # with PostgreSQL, http://127.0.0.1:8781
 
 See `deploy/DEPLOY.md` for Docker, Hugging Face Spaces and licences. Weights and datasets with non-commercial terms are never committed.
 
+## Real cases, in four categories
+
+The studio opens on **Example outputs**, a gallery of real, openly licensed photographs (Wikimedia Commons, author and licence shown on each card; see `NOTICE.md`).
+No example is synthetic.
+
+| Category | What it shows |
+|---|---|
+| Facial palsy | How the two sides sit and move (rest, smile, brow, eye closure), single photos or a before/after pair, and what is usually done by time since onset |
+| Cleft lip and palate | Twelve-point right-against-left reading of real infants, a real before/after repair pair, and the usual sequence of care by age |
+| Aesthetic planning | Nose (side-view angles, Goode ratio, a real rhinoplasty before/after, planned profile and methods), smile, and skin lines with a softening preview |
+| Wounds and scars | A real marking example; upload your own photograph in the Photo tab |
+
+**Live demo:** https://172-232-225-76.sslip.io
+
 ## Photo, video or side photo
 
 | Assessment | Input |

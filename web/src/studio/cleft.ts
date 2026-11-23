@@ -2,6 +2,7 @@ import { FaceFrame, pxPerMm } from '../clinical/face';
 import type { P2 } from '../clinical/rstl';
 import { detectFace } from './landmarker';
 import { loadPhotoFile, loadPhotoUrl } from './photo';
+import { compareSlider } from './warp';
 import { cleftReference } from './reference';
 import { T, esc } from './panels';
 import { lang, num } from '../i18n';
@@ -30,6 +31,7 @@ const KEYS = POINTS.map(p => p[0]);
 type K = (typeof KEYS)[number];
 
 const st = {
+  pair: null as HTMLCanvasElement | null, palate: false,
   img: null as HTMLCanvasElement | null, w: 0, h: 0, name: '', pts: {} as Record<K, P2>, frame: null as FaceFrame | null,
   drag: null as K | null, onChange: () => { /* set on mount */ },
 };
@@ -66,6 +68,7 @@ const gcol = (r: Row): 'g' | 'y' | 'r' => {
 };
 
 async function setImage(c: HTMLCanvasElement, name: string): Promise<void> {
+  st.pair = null; st.palate = false;
   st.img = c; st.w = c.width; st.h = c.height; st.name = name; st.pts = {} as Record<K, P2>; st.frame = null;
   const det = await detectFace(c).catch(() => ({ landmarks: [] }));
   if (det.landmarks.length) { const lm = det.landmarks.map(p => [p.x * c.width, p.y * c.height] as P2); st.frame = new FaceFrame(lm, pxPerMm(lm)); }
@@ -90,7 +93,7 @@ export function mountCleft(host: HTMLElement, onChange: () => void): void {
   const xf = () => { const k = Math.min(cv.width / st.w, cv.height / st.h); return { k, ox: (cv.width - st.w * k) / 2, oy: (cv.height - st.h * k) / 2 }; };
   const at = (e: PointerEvent): P2 => { const r = cv.getBoundingClientRect(), t = xf(), s = cv.width / r.width; return [((e.clientX - r.left) * s - t.ox) / t.k, ((e.clientY - r.top) * s - t.oy) / t.k]; };
   cv.addEventListener('pointerdown', e => {
-    if (!st.img) return; const p = at(e), t = xf();
+    if (!st.img || st.palate) return; const p = at(e), t = xf();
     const hit = KEYS.find(k => st.pts[k] && Math.hypot(st.pts[k][0] - p[0], st.pts[k][1] - p[1]) * t.k < 12);
     if (hit) { st.drag = hit; cv.setPointerCapture(e.pointerId); return; }
     const next = KEYS.find(k => !st.pts[k]); if (next) { st.pts[next] = p; refresh(); }
@@ -107,8 +110,8 @@ function refresh(): void {
   if (st.img) {
     const k = Math.min(cv.width / st.w, cv.height / st.h), ox = (cv.width - st.w * k) / 2, oy = (cv.height - st.h * k) / 2;
     ctx.drawImage(st.img, ox, oy, st.w * k, st.h * k);
-    const next = KEYS.find(x => !st.pts[x]); const pr = el('cl-prompt'); pr.hidden = !next;
-    if (next) pr.textContent = `${KEYS.indexOf(next) + 1}/12 · ${POINTS[KEYS.indexOf(next)][lang() === 'id' ? 2 : 1]}`;
+    const next = KEYS.find(x => !st.pts[x]); const pr = el('cl-prompt'); pr.hidden = !next || st.palate;
+    if (next && !st.palate) pr.textContent = `${KEYS.indexOf(next) + 1}/12 · ${POINTS[KEYS.indexOf(next)][lang() === 'id' ? 2 : 1]}`;
     ctx.font = '11px "JetBrains Mono", monospace';
     for (const key of KEYS) { const p = st.pts[key]; if (!p) continue; ctx.fillStyle = key.endsWith('_R') ? '#5fe8c8' : key.endsWith('_L') ? '#ff8f6e' : '#fff'; ctx.beginPath(); ctx.arc(ox + p[0] * k, oy + p[1] * k, 3.5, 0, 6.283); ctx.fill(); }
     if (KEYS.every(x => st.pts[x])) {
@@ -125,6 +128,7 @@ function refresh(): void {
 export function cleftHtml(): string {
   const lead = `<div class="mv-badge photo">${T('Photo is enough', 'Foto cukup')}</div>`;
   if (!st.img) return `${lead}<div class="banner">${T('Choose a front photo, or use the synthetic test, then click the twelve points in order.', 'Pilih foto depan, atau pakai uji sintetis, lalu klik dua belas titik berurutan.')}</div>`;
+  if (st.palate) return `${lead}<div class="banner">${T('A photograph of the palate shows what is there but cannot measure it: the cleft of the palate is described by its extent (soft palate only, hard and soft palate, with or without the lip), found by examination. Below is what is usually done and when.', 'Foto langit-langit memperlihatkan keadaannya tetapi tidak bisa mengukurnya: celah langit-langit digambarkan menurut luasnya (hanya langit-langit lunak, keras dan lunak, dengan atau tanpa bibir), ditemukan lewat pemeriksaan. Di bawah ini apa yang lazim dikerjakan dan kapan.')}</div>${cleftReference()}`;
   const rows = measure();
   if (!rows) return `${lead}<p class="fine">${st.frame ? T('Click all twelve points. The scale comes from the iris.', 'Klik kedua belas titik. Skala dari iris.') : T('No face was found for the scale, so distances cannot be given in mm. Try a clearer front photo.', 'Wajah tidak ditemukan untuk skala, jadi jarak tidak bisa dalam mm. Coba foto depan yang lebih jelas.')}</p>`;
   const L = lang() === 'id' ? 'id' : 'en';
@@ -138,15 +142,27 @@ export function cleftHtml(): string {
     <section class="mv-card"><h5>${T('Right against left (patient\'s sides)', 'Kanan lawan kiri (sisi pasien)')}</h5>
       <table class="tbl cl-t"><thead><tr><th></th><th>${T('Right', 'Kanan')}</th><th>${T('Left', 'Kiri')}</th><th>${T('Min/max', 'Min/maks')}</th><th></th></tr></thead><tbody>${body}</tbody></table>
       <p class="fine">${T('Green, yellow and red are prototype screening bands (ratio 0.90 and 0.80; 1 to 2 mm; 3 to 6°), not clinical cut-offs. The scale comes from the iris (11.7 mm, about ±5%). There is no severity grade, no aesthetic score and no operation chosen: established cleft scales are rated by trained clinicians, and nothing here has been validated against them.', 'Hijau, kuning, dan merah adalah pita skrining prototipe (rasio 0,90 dan 0,80; 1 sampai 2 mm; 3 sampai 6°), bukan batas klinis. Skala dari iris (11,7 mm, sekitar ±5%). Tidak ada derajat keparahan, skor estetika, atau operasi yang dipilih: skala sumbing yang mapan dinilai dokter terlatih, dan tidak ada di sini yang divalidasi terhadapnya.')}</p></section>
+    ${st.pair ? `<section class="mv-card"><h5>${T('Before and after repair (real photographs)', 'Sebelum dan sesudah perbaikan (foto nyata)')}</h5><div id="cl-cmp"></div><p class="fine">${T('The reading above is for the first photograph. The second shows the same child after the lip repair.', 'Pembacaan di atas untuk foto pertama. Foto kedua menunjukkan anak yang sama setelah perbaikan bibir.')}</p></section>` : ''}
+    <p class="fine">${T('For infants the iris-based millimetre scale is approximate; the min/max ratios do not depend on it.', 'Untuk bayi, skala mm dari iris hanya perkiraan; rasio min/maks tidak bergantung padanya.')}</p>
     ${cleftReference()}`;
 }
 
-export function paintCleft(_root: HTMLElement): void { /* nothing to paint: the table is plain HTML */ }
+export function paintCleft(root: HTMLElement): void {
+  const host = root.querySelector<HTMLElement>('#cl-cmp');
+  if (host && st.pair && st.img) {
+    const a = document.createElement('canvas'); a.width = st.img.width; a.height = st.img.height; a.getContext('2d')!.drawImage(st.img, 0, 0);
+    const b = document.createElement('canvas'); b.width = a.width; b.height = a.height; b.getContext('2d')!.drawImage(st.pair, 0, 0, a.width, a.height);
+    host.appendChild(compareSlider(a, b, T('Before', 'Sebelum'), T('After', 'Sesudah')));
+  }
+}
 export const hasCleft = (): boolean => !!st.img;
 
 /** A real photograph with the twelve points pre-placed (as fractions of the picture) for the clinician to confirm or drag. */
-export async function loadCleftUrl(url: string, name: string, frac?: Record<string, [number, number]>): Promise<void> {
+export async function loadCleftUrl(url: string, name: string, frac?: Record<string, [number, number]>, opts: { pairUrl?: string; palate?: boolean } = {}): Promise<void> {
   const p = await loadPhotoUrl(url, name);
   await setImage(p.canvas, name);
-  if (frac) { for (const k of KEYS) if (frac[k]) st.pts[k] = [frac[k][0] * st.w, frac[k][1] * st.h]; refresh(); }
+  if (opts.palate) { st.palate = true; st.pts = {} as Record<K, P2>; }
+  if (opts.pairUrl) st.pair = (await loadPhotoUrl(opts.pairUrl, 'after')).canvas;
+  if (frac) { for (const k of KEYS) if (frac[k]) st.pts[k] = [frac[k][0] * st.w, frac[k][1] * st.h]; }
+  refresh();
 }

@@ -11,7 +11,7 @@ import { lang, num } from '../i18n';
  * tracked frame by frame in the browser and compared right against left. Nothing is uploaded or stored. No grade, no verdict.
  */
 interface Thumb { c: HTMLCanvasElement; lm: Pt[] | null }
-const ui = { stats: [] as Array<{ m: Measures; name: string; thumb: Thumb }>, report: null as MotionReport | null, thumbs: [] as Thumb[], name: '', running: false, onChange: () => { /* set on mount */ } };
+const ui = { ref: 'palsy' as 'palsy' | 'smile', stats: [] as Array<{ m: Measures; name: string; thumb: Thumb }>, report: null as MotionReport | null, thumbs: [] as Thumb[], name: '', running: false, onChange: () => { /* set on mount */ } };
 const TH = 288;
 
 export const MOVE_NAME: Record<MoveKey, [string, string]> = {
@@ -142,8 +142,8 @@ const nearest = (r: MotionReport, t: number): number => { let bi = 0, bd = Infin
 export interface StillIn { c: HTMLCanvasElement; name: string }
 
 /** Photographs instead of a clip: a rest photo first, then one photo per movement, or a single photo read statically. */
-export async function runStills(list: StillIn[], mode: 'series' | 'compare' = 'series'): Promise<void> {
-  setRunning(true); ui.report = null; ui.stats = [];
+export async function runStills(list: StillIn[], mode: 'series' | 'compare' = 'series', ref: 'palsy' | 'smile' = 'palsy'): Promise<void> {
+  setRunning(true); ui.report = null; ui.stats = []; ui.ref = ref;
   const prompt = el('mv-prompt'); prompt.hidden = false; prompt.textContent = T('Finding the face…', 'Mencari wajah…');
   try {
     const lms: Array<Pt[] | null> = [];
@@ -185,7 +185,7 @@ function statHtml(): string {
     ${two ? `<section class="mv-card"><h5>${T('Before and after', 'Sebelum dan sesudah')}</h5><div id="mv-stat-cmp"></div></section>` : ''}
     ${ui.stats.map(statCard).join('')}
     <p class="fine">${T('A photograph shows how the two sides sit in that pose, not how far each side can move, so one photo cannot tell a palsy from a resting asymmetry. Add a rest photo first, then the movement photos (smile, brow raise, eye closure), or a short video, to compare how far each side moves. The scale comes from the iris (11.7 mm, about ±5%). No grade and no diagnosis.', 'Foto menunjukkan letak kedua sisi pada pose itu, bukan seberapa jauh tiap sisi bisa bergerak, jadi satu foto tidak bisa membedakan palsi dari asimetri saat istirahat. Tambahkan foto istirahat lebih dulu, lalu foto gerakan (senyum, angkat alis, menutup mata), atau video singkat, untuk membandingkan seberapa jauh tiap sisi bergerak. Skala dari iris (11,7 mm, sekitar ±5%). Tanpa derajat dan tanpa diagnosis.')}</p>
-    ${palsyReference()}${smileReference()}`;
+    ${ui.ref === 'smile' ? smileReference() : palsyReference() + smileReference()}`;
 }
 
 async function runFile(f: File): Promise<void> {

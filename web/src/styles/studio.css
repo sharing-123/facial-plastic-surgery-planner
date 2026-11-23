@@ -224,3 +224,8 @@ body.modal-open { overflow: hidden; }
 .cmp-l, .cmp-r { position: absolute; top: 8px; font: 500 0.68rem 'JetBrains Mono', monospace; font-style: normal; color: #c8fff0; background: rgba(5,6,8,0.75); padding: 3px 9px; border-radius: 999px; pointer-events: none; } .cmp-l { left: 8px; } .cmp-r { right: 8px; }
 .ref-ul { margin: 4px 0 10px; padding-left: 18px; display: grid; gap: 5px; font-size: 0.84rem; color: var(--text); line-height: 1.5; } .ref h5, .ref-ul + h5 { margin: 10px 0 0; font-weight: 500; font-size: 0.86rem; color: #5fe8c8; }
 .cl-t td, .cl-t th { font-size: 0.78rem; } .tl { display: inline-block; width: 10px; height: 10px; border-radius: 50%; } .tl.g { background: #3fd67a; } .tl.y { background: #f2c14b; } .tl.r { background: #e84b4b; }
+
+.ex-sec { grid-column: 1 / -1; margin: 22px 0 2px; padding-top: 14px; border-top: 1px solid var(--line); } .ex-sec:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+.ex-sec .ex-h { margin: 0 0 2px; font-size: 1.05rem; font-weight: 500; color: var(--text); letter-spacing: 0; display: flex; gap: 10px; align-items: baseline; }
+.ex-sec .ex-h span { font: 500 0.72rem 'JetBrains Mono', monospace; color: #5fe8c8; border: 1px solid rgba(95,232,200,0.4); border-radius: 999px; padding: 1px 8px; }
+.ex-sec .fine { margin: 0; }

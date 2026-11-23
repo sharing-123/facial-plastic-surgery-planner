@@ -1,4 +1,4 @@
-import { loadPhotoFile } from './photo';
+import { loadPhotoFile, loadPhotoUrl } from './photo';
 import { T, esc } from './panels';
 import { compareSlider, warpPush, type Push } from './warp';
 import { noseReference } from './reference';
@@ -18,12 +18,12 @@ const NAMES: Record<Key, [string, string]> = {
   Pg: ['Pogonion (chin point)', 'Pogonion (titik dagu)'], Ac: ['Alar crease (where the wing meets the cheek)', 'Lipatan alar (sayap hidung bertemu pipi)'],
 };
 
-const st = { img: null as HTMLCanvasElement | HTMLImageElement | null, w: 0, h: 0, pts: {} as Partial<Record<Key, P>>, drag: null as Key | null, name: '', demo: false, target: 0.57, aug: 4, noseMm: null as number | null, onChange: () => { /* set on mount */ } };
+const st = { after: null as { img: HTMLCanvasElement; pts: Partial<Record<Key, P>> } | null, img: null as HTMLCanvasElement | HTMLImageElement | null, w: 0, h: 0, pts: {} as Partial<Record<Key, P>>, drag: null as Key | null, name: '', demo: false, target: 0.57, aug: 4, noseMm: null as number | null, onChange: () => { /* set on mount */ } };
 const angle = (a: P, v: P, b: P): number => { const x = [a[0] - v[0], a[1] - v[1]], y = [b[0] - v[0], b[1] - v[1]]; return (Math.acos(Math.max(-1, Math.min(1, (x[0] * y[0] + x[1] * y[1]) / (Math.hypot(...x) * Math.hypot(...y) || 1)))) * 180) / Math.PI; };
 const dist = (a: P, b: P): number => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
-export function noseMetrics(): { nf: number; nl: number; goode: number; len: number; proj: number } | null {
-  const p = st.pts; if (!KEYS.every(k => p[k])) return null;
+export function noseMetrics(p: Partial<Record<Key, P>> = st.pts): { nf: number; nl: number; goode: number; len: number; proj: number } | null {
+  if (!KEYS.every(k => p[k])) return null;
   const P = p as Record<Key, P>;
   const len = dist(P.N, P.Prn), proj = Math.abs(P.Prn[0] - P.Ac[0]);
   return { nf: angle(P.G, P.N, P.Prn), nl: angle(P.Cm, P.Sn, P.Ls), goode: proj / len, len, proj };
@@ -79,7 +79,7 @@ export function mountNose(host: HTMLElement, onChange: () => void): void {
   const file = el<HTMLInputElement>('ns-file');
   file.addEventListener('change', async () => {
     const f = file.files?.[0]; file.value = ''; if (!f) return;
-    try { const p = await loadPhotoFile(f); st.img = p.canvas; st.w = p.width; st.h = p.height; st.pts = {}; st.name = f.name; st.demo = false; st.noseMm = null; refresh(); } catch { alert(T('The file could not be read as an image.', 'Berkas tidak bisa dibaca sebagai gambar.')); }
+    try { const p = await loadPhotoFile(f); st.img = p.canvas; st.w = p.width; st.h = p.height; st.pts = {}; st.name = f.name; st.demo = false; st.noseMm = null; st.after = null; refresh(); } catch { alert(T('The file could not be read as an image.', 'Berkas tidak bisa dibaca sebagai gambar.')); }
   });
   host.addEventListener('click', e => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-ns]'); if (!b) return;
@@ -151,6 +151,7 @@ export function noseHtml(): string {
       ${row(T('Nasolabial angle', 'Sudut nasolabial'), `${num(m.nl, 0)}°`, `${REF.nl[0]}–${REF.nl[1]}° (${T('men lower, women higher', 'pria lebih kecil, wanita lebih besar')})`, nl)}
       ${row(T('Tip projection (Goode ratio)', 'Proyeksi ujung (rasio Goode)'), num(m.goode, 2), `${REF.goode[0].toFixed(2)}–${REF.goode[1].toFixed(2)}`, go)}
       <p class="fine">${T('Ranges are the commonly cited screening values for a side view (Powell and Humphreys for the angles, Goode for the ratio). Populations differ, and the face is judged as a whole, so a value outside a range is not a verdict.', 'Rentang adalah nilai skrining yang lazim dikutip untuk tampak samping (Powell dan Humphreys untuk sudut, Goode untuk rasio). Populasi berbeda dan wajah dinilai utuh, jadi nilai di luar rentang bukan vonis.')}</p></section>
+    ${afterCard(m)}
     <section class="mv-card"><h5>${T('Planned profile (illustration)', 'Profil rencana (ilustrasi)')}</h5>
       <label class="ns-in">${T('Target Goode ratio', 'Target rasio Goode')} <input type="range" id="ns-target" min="0.50" max="0.64" step="0.01" value="${st.target}"><b>${st.target.toFixed(2)}</b></label>
       <label class="ns-in">${T('Dorsal augmentation, % of nasal length', 'Augmentasi dorsum, % panjang hidung')} <input type="range" id="ns-aug" min="0" max="10" step="1" value="${st.aug}"><b>${st.aug}%</b></label>
@@ -170,6 +171,12 @@ export function wireNose(root: HTMLElement): void {
     i.addEventListener('change', () => st.onChange());
   };
   num2('ns-target', v => { st.target = v; }); num2('ns-aug', v => { st.aug = v; });
+  const real = root.querySelector<HTMLElement>('#ns-real');
+  if (real && st.after && st.img) {
+    const a = document.createElement('canvas'); a.width = st.img.width; a.height = st.img.height; a.getContext('2d')!.drawImage(st.img as HTMLCanvasElement, 0, 0);
+    const b = document.createElement('canvas'); b.width = a.width; b.height = a.height; b.getContext('2d')!.drawImage(st.after.img, 0, 0, a.width, a.height);
+    real.appendChild(compareSlider(a, b, T('Before', 'Sebelum'), T('After', 'Sesudah')));
+  }
   const host = root.querySelector<HTMLElement>('#ns-sim'), after = host ? simulate() : null;
   if (host && after && st.img) {
     const before = document.createElement('canvas'); before.width = after.width; before.height = after.height;
@@ -180,3 +187,28 @@ export function wireNose(root: HTMLElement): void {
 }
 export const hasNose = (): boolean => !!st.img;
 
+
+/** A real profile photograph with the eight points pre-placed (fractions of the picture) for the clinician to confirm or drag. */
+export async function loadNoseUrl(url: string, name: string, frac: Record<string, [number, number]>, after?: { url: string; frac: Record<string, [number, number]> }): Promise<void> {
+  const p = await loadPhotoUrl(url, name);
+  st.img = p.canvas; st.w = p.width; st.h = p.height; st.name = name; st.demo = false; st.noseMm = null; st.after = null; st.pts = {};
+  for (const k of KEYS) if (frac[k]) st.pts[k] = [frac[k][0] * st.w, frac[k][1] * st.h];
+  if (after) {
+    const a = await loadPhotoUrl(after.url, 'after'); const pts: Partial<Record<Key, P>> = {};
+    for (const k of KEYS) if (after.frac[k]) pts[k] = [after.frac[k][0] * a.width, after.frac[k][1] * a.height];
+    st.after = { img: a.canvas, pts };
+  }
+  refresh();
+}
+
+function afterCard(before: NonNullable<ReturnType<typeof noseMetrics>>): string {
+  if (!st.after) return '';
+  const a = noseMetrics(st.after.pts); if (!a) return '';
+  const d = (x: number, y: number, u: string, dg = 0) => `${num(y - x, dg)}${u}`;
+  const row = (label: string, b: string, af: string, ch: string) => `<div class="ns-row"><div><b>${esc(label)}</b><span>${T('before', 'sebelum')} ${esc(b)} · ${T('after', 'sesudah')} ${esc(af)}</span></div><strong>${esc(ch)}</strong></div>`;
+  return `<section class="mv-card"><h5>${T('Real outcome: before and after (photographs)', 'Hasil nyata: sebelum dan sesudah (foto)')}</h5><div id="ns-real"></div>
+    ${row(T('Nasofrontal angle', 'Sudut nasofrontal'), `${num(before.nf, 0)}°`, `${num(a.nf, 0)}°`, d(before.nf, a.nf, '°')) }
+    ${row(T('Nasolabial angle', 'Sudut nasolabial'), `${num(before.nl, 0)}°`, `${num(a.nl, 0)}°`, d(before.nl, a.nl, '°'))}
+    ${row(T('Goode ratio', 'Rasio Goode'), num(before.goode, 2), num(a.goode, 2), d(before.goode, a.goode, '', 2))}
+    <p class="fine">${T('The points on both photographs were placed by the program for you to confirm; moving a point by a few pixels changes an angle by a few degrees. A real photograph pair is also affected by head position and lighting, so read the change as an estimate.', 'Titik pada kedua foto dipasang program untuk Anda konfirmasi; menggeser titik beberapa piksel mengubah sudut beberapa derajat. Pasangan foto nyata juga dipengaruhi posisi kepala dan cahaya, jadi baca perubahan sebagai perkiraan.')}</p></section>`;
+}

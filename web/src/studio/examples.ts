@@ -1,4 +1,3 @@
-import { lang } from '../i18n';
 import { T, esc } from './panels';
 import { realHtml } from './real';
 import { commitMask, paintMask, setCtx, state, tapLesion } from './store';
@@ -21,16 +20,6 @@ export const SPECS: Record<string, Spec> = {
   ex6: { sample: 0, kind: 'laceration', a: [234, [0.15, -0.03]], b: [234, [0.20, 0.13]], w: 0.013 },
 };
 
-interface Ex { id: string; title: Record<string, string>; sheet: Record<string, string>; note: Record<string, string>; region: Record<string, string>; diagnosis: Record<string, string | number>; numbers: { length_mm: number } }
-
-let cache: Ex[] | undefined;
-async function load(): Promise<Ex[]> {
-  if (cache) return cache;
-  const r = await fetch('/api/examples');
-  if (!r.ok) throw new Error(String(r.status));
-  cache = (await r.json()) as Ex[];
-  return cache;
-}
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -67,21 +56,12 @@ export async function openExamples(onPick: (id: string) => void): Promise<void> 
   document.body.classList.add('modal-open');
   body.innerHTML = `<p class="muted">${T('Loading…', 'Memuat…')}</p>`;
   try {
-    const items = await load();
-    const l = lang();
-    body.innerHTML = items.map(e => `<article class="ex-card" data-ex="${esc(e.id)}" tabindex="0" role="button" aria-label="${esc(e.title[l] ?? e.title.en)}">
-      <div class="ex-thumb"><img src="/api/examples/img/${esc(e.id)}_measured.jpg" alt=""><span class="ex-chip">${e.numbers.length_mm.toFixed(1)} mm</span><span class="ex-run">${T('Run the analysis', 'Jalankan analisis')} →</span></div>
-      <h5>${esc(e.title[l] ?? e.title.en)}</h5>
-      <p>${esc(String(e.region[l] ?? e.region.en))} · ${esc(String(e.diagnosis[l] ?? e.diagnosis.en))}</p>
-      <button type="button" class="ex-sheet" data-sheet="${esc(e.sheet[l] ?? e.sheet.en)}">${T('Summary sheet', 'Lembar ringkasan')}</button>
-    </article>`).join('');
-    body.insertAdjacentHTML('beforeend', await realHtml());
+    body.innerHTML = await realHtml();
     const pick = (el: HTMLElement) => { closeExamples(); onPick(el.dataset.ex!); };
     body.querySelectorAll<HTMLElement>('.ex-card').forEach(c => {
       c.addEventListener('click', ev => { if ((ev.target as HTMLElement).closest('.ex-sheet')) return; pick(c); });
       c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(c); } });
     });
-    body.querySelectorAll<HTMLElement>('.ex-sheet').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); openSheet(b.dataset.sheet!); }));
   } catch {
     body.innerHTML = `<p class="muted">${T('The examples are not available from this server.', 'Contoh tidak tersedia dari server ini.')}</p>`;
   }
@@ -93,10 +73,10 @@ export function closeExamples(): void {
   document.body.classList.remove('modal-open');
 }
 
-function openSheet(name: string): void {
+export function openLightbox(src: string): void {
   const lb = document.createElement('div');
   lb.className = 'lightbox';
-  lb.innerHTML = `<button type="button" class="lb-x" aria-label="${T('Close', 'Tutup')}">×</button><img src="/api/examples/img/${esc(name)}" alt="">`;
+  lb.innerHTML = `<button type="button" class="lb-x" aria-label="${T('Close', 'Tutup')}">×</button><img src="${esc(src)}" alt="">`;
   const close = () => { lb.remove(); window.removeEventListener('keydown', onKey, true); };
   const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
   lb.addEventListener('click', close);

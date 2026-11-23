@@ -68,5 +68,135 @@
    1280,
    950
   ]
+ },
+ "13900470_3preoperation0.jpg": {
+  "title": "File:13900470 3PREOPERATION0.jpg",
+  "licence": "Public domain",
+  "artist": "King97tut",
+  "source": "https://commons.wikimedia.org/wiki/File:13900470_3PREOPERATION0.jpg",
+  "size": [
+   653,
+   685
+  ]
+ },
+ "17161036_postopt3.jpg": {
+  "title": "File:17161036 POSTOPT3.jpg",
+  "licence": "Public domain",
+  "artist": "King97tut",
+  "source": "https://commons.wikimedia.org/wiki/File:17161036_POSTOPT3.jpg",
+  "size": [
+   577,
+   800
+  ]
+ },
+ "baby_girl_with_cleft_palate_smiling.jpg": {
+  "title": "File:Baby girl with cleft palate, smiling.jpg",
+  "licence": "Public domain",
+  "artist": "King97tut",
+  "source": "https://commons.wikimedia.org/wiki/File:Baby_girl_with_cleft_palate,_smiling.jpg",
+  "size": [
+   937,
+   1262
+  ]
+ },
+ "girl_exhibiting_a_cleft_of_the_soft_palate_wellc.jpg": {
+  "title": "File:Girl exhibiting a cleft of the soft palate Wellcome L0066974.jpg",
+  "licence": "CC BY 4.0",
+  "artist": "",
+  "source": "https://commons.wikimedia.org/wiki/File:Girl_exhibiting_a_cleft_of_the_soft_palate_Wellcome_L0066974.jpg",
+  "size": [
+   1280,
+   1672
+  ]
+ },
+ "cleftbefore.jpg": {
+  "title": "File:Cleftbefore.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Felsir at English Wikipedia",
+  "source": "https://commons.wikimedia.org/wiki/File:Cleftbefore.jpg",
+  "size": [
+   277,
+   277
+  ]
+ },
+ "cleftafter.jpg": {
+  "title": "File:Cleftafter.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Felsir at English Wikipedia",
+  "source": "https://commons.wikimedia.org/wiki/File:Cleftafter.jpg",
+  "size": [
+   277,
+   277
+  ]
+ },
+ "1rhinoplastybefore.jpg": {
+  "title": "File:1rhinoplastybefore.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Alexander Rivkin",
+  "source": "https://commons.wikimedia.org/wiki/File:1rhinoplastybefore.jpg",
+  "size": [
+   600,
+   800
+  ]
+ },
+ "1rhinoplastyafter.jpg": {
+  "title": "File:1rhinoplastyafter.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Alexander Rivkin",
+  "source": "https://commons.wikimedia.org/wiki/File:1rhinoplastyafter.jpg",
+  "size": [
+   600,
+   800
+  ]
+ },
+ "2rhinoplastybefore.jpg": {
+  "title": "File:2rhinoplastybefore.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Alexander Rivkin",
+  "source": "https://commons.wikimedia.org/wiki/File:2rhinoplastybefore.jpg",
+  "size": [
+   600,
+   800
+  ]
+ },
+ "2rhinoplastyafter.jpg": {
+  "title": "File:2rhinoplastyafter.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Alexander Rivkin",
+  "source": "https://commons.wikimedia.org/wiki/File:2rhinoplastyafter.jpg",
+  "size": [
+   600,
+   800
+  ]
+ },
+ "elderly_gambian_woman_face_portrait.jpg": {
+  "title": "File:Elderly Gambian woman face portrait.jpg",
+  "licence": "CC BY-SA 2.0",
+  "artist": "Ferdinand Reus",
+  "source": "https://commons.wikimedia.org/wiki/File:Elderly_Gambian_woman_face_portrait.jpg",
+  "size": [
+   1280,
+   1419
+  ]
+ },
+ "india_delhi_portrait_of_a_man_4780.jpg": {
+  "title": "File:India - Delhi portrait of a man - 4780.jpg",
+  "licence": "CC BY-SA 3.0",
+  "artist": "Jorge Royan",
+  "source": "https://commons.wikimedia.org/wiki/File:India_-_Delhi_portrait_of_a_man_-_4780.jpg",
+  "size": [
+   1280,
+   853
+  ]
+ },
+ "wound_mannequin_marking.jpg": {
+  "title": "Wound simulation mannequin: segmented contour, numbered sutures, schematic closure",
+  "licence": "MIT (this repository)",
+  "artist": "Muhammad Allam Rafi and Cindy Rizky Afrilia, output of the Python prototype",
+  "source": "https://github.com/sharing-123/facial-plastic-surgery-planner/tree/python-package-v0.1.0",
+  "size": [
+   1896,
+   970
+  ]
  }
 }
