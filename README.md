@@ -44,6 +44,21 @@ docker compose up --build   # with PostgreSQL, http://127.0.0.1:8781
 
 See `deploy/DEPLOY.md` for Docker, Hugging Face Spaces and licences. Weights and datasets with non-commercial terms are never committed.
 
+## Photo, video or side photo
+
+| Assessment | Input |
+|---|---|
+| Wound, scar, lesion: size, direction, marking, plan | One front photo |
+| Proportions, static asymmetry | One front photo |
+| Facial palsy (brow, eye closure, smile) | **Video**: palsy is a problem of movement |
+| Smile (corner lift, symmetry) | **Video** |
+| Nose projection, tip rotation, dorsum | **Side-view photo** |
+
+The Movement tab tracks a clip in the browser (nothing is uploaded) and reports right against left excursion with no grade or verdict.
+It was tested on synthetic clips with a known answer: a smile gap set to 40% was measured as 41%, but a brow gap set to 30% was measured as 61% and
+an eye-closure gap set to 60% as 75%, so a small reported gap is a lower bound. The Nose tab measures the nasofrontal and nasolabial angles and the Goode ratio
+from eight marked points and draws a planned profile as a line illustration only.
+
 ## Example outputs
 
 Each sheet shows the measured lesion, the marking with numbered sutures and an illustration of the expected appearance, with size, type,

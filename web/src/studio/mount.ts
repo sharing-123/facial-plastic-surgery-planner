@@ -4,6 +4,9 @@ import type { FaceViewer } from './viewer3d';
 import { STAGE_COUNT, type SurgeryMode } from './surgery3d';
 import { applySpec, closeExamples, openExamples, SPECS } from './examples';
 import { playTheater } from './theater';
+import { guideHtml } from './guide';
+import { hasMotion, motionHtml, mountVideo, paintMotion } from './video';
+import { mountNose, noseHtml, wireNose } from './nose';
 import { drawPlanImages } from './draw';
 import { api, ApiError, type CaseRecord } from './api';
 import { ACCEPT, PhotoError, loadPhotoFile, loadPhotoUrl, openCamera, type CameraSession } from './photo';
@@ -34,6 +37,7 @@ export function mountStudio(root: HTMLElement): void {
         <div class="row"><input id="case-code" class="code" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost small" data-act="new-code" title="${T('New code', 'Kode baru')}">${T('New', 'Baru')}</button></div>
         <p class="fine">${T('Do not type a name. The photo stays on this device.', 'Jangan mengetik nama. Foto tetap di perangkat ini.')}</p>
       </section>
+      <section class="card"><details class="acc guide-acc"><summary>${T('What do I need to capture?', 'Apa yang perlu direkam?')}</summary><div class="accb">${guideHtml()}</div></details></section>
       <section class="card">
         <div class="drop" id="drop" tabindex="0" role="button" aria-label="${T('Add a photograph', 'Tambahkan foto')}" data-act="upload">
           <strong>${T('Add a frontal photograph', 'Tambahkan foto frontal')}</strong>
@@ -61,7 +65,7 @@ export function mountStudio(root: HTMLElement): void {
     </aside>
     <main class="stage">
       <div class="tabs" role="tablist">
-        ${([['photo', 'Photo', 'Foto'], ['3d', '3D', '3D'], ['plan', 'Plan', 'Rencana']] as const).map(([k, en, id]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}</button>`).join('')}
+        ${([['photo', 'Photo', 'Foto', ''], ['3d', '3D', '3D', ''], ['plan', 'Plan', 'Rencana', ''], ['video', 'Movement', 'Gerakan', 'video'], ['nose', 'Nose', 'Hidung', 'side']] as const).map(([k, en, id, b]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}${b ? `<small class="tab-badge ${b}">${b === 'video' ? T('video', 'video') : T('side photo', 'foto samping')}</small>` : ''}</button>`).join('')}
         <span class="busy" id="busy" hidden></span>
       </div>
       <div class="views">
@@ -74,6 +78,8 @@ export function mountStudio(root: HTMLElement): void {
           </div>
         </div>
         <div class="view" data-view="plan" hidden><div class="plan3" id="plan3"></div></div>
+        <div class="view" data-view="video" hidden id="v-video"></div>
+        <div class="view" data-view="nose" hidden id="v-nose"></div>
       </div>
     </main>
     <aside class="results" id="results" aria-label="${T('Results', 'Hasil')}"></aside>
@@ -82,6 +88,8 @@ export function mountStudio(root: HTMLElement): void {
   <div class="modal" id="examples" hidden><div class="modal-box wide"><div class="row"><h4>${T('Example outputs', 'Contoh hasil')}</h4><button class="btn ghost small" data-act="examples-close">${T('Close', 'Tutup')}</button></div><div class="ex-body"></div></div></div>
   <div class="modal" id="ask" hidden><div class="modal-box small"><p id="ask-q"></p><input id="ask-in" type="number" step="0.1" min="1" max="300"><div class="row"><button class="btn" data-act="ask-ok">OK</button><button class="btn ghost" data-act="ask-no">${T('Cancel', 'Batal')}</button></div></div></div>`;
 
+  mountVideo(document.getElementById('v-video')!, () => renderResults());
+  mountNose(document.getElementById('v-nose')!, () => renderResults());
   view2d = new View2D(document.getElementById('v2d')!);
   view2d.onScaleRequest = (a, b) => askLength(a, b);
   wire(root);
@@ -317,6 +325,7 @@ function render(): void {
   view2d?.draw();
   renderResults();
   if (s.tab === 'plan') renderPlan();
+  void hasMotion;
   if (s.tab === '3d') void ensure3d();
 }
 
@@ -332,6 +341,11 @@ function renderResults(): void {
   const stage = Math.min(STAGE_COUNT - 1, Math.floor(Number((document.getElementById('stage') as HTMLInputElement | null)?.value ?? 0)));
   const has = !!state.photo && !!state.gate && state.gate.status !== 'CANNOT_ASSESS';
   const refused = state.gate?.status === 'CANNOT_ASSESS';
+  if (state.tab === 'video' || state.tab === 'nose') {
+    el.innerHTML = `<div class="results-in">${state.tab === 'video' ? motionHtml() : noseHtml()}</div>`;
+    if (state.tab === 'video') paintMotion(el); else wireNose(el);
+    return;
+  }
   const body = !state.photo ? `<p class="muted">${T('Results appear here after you add a photograph.', 'Hasil muncul di sini setelah Anda menambahkan foto.')}</p>`
     : refused ? `<div class="banner bad">${T('This photograph cannot be assessed, so no measurements are shown. See the reasons on the left and take a new photograph.', 'Foto ini tidak bisa dinilai, jadi tidak ada angka yang ditampilkan. Lihat alasannya di kiri dan ambil foto baru.')}</div>`
     : section('find', T('Lesion and differential', 'Lesi dan diagnosis banding'), findingsHtml(), true) +

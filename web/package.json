@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx --test tests/clinical.test.ts"
+    "test": "tsx --test tests/clinical.test.ts tests/motion.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/hanken-grotesk": "*",
