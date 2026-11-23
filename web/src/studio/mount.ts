@@ -5,8 +5,11 @@ import { STAGE_COUNT, type SurgeryMode } from './surgery3d';
 import { applySpec, closeExamples, openExamples, SPECS } from './examples';
 import { playTheater } from './theater';
 import { guideHtml } from './guide';
+import { runReal } from './real';
 import { hasMotion, motionHtml, mountVideo, paintMotion } from './video';
 import { mountNose, noseHtml, wireNose } from './nose';
+import { cleftHtml, mountCleft, paintCleft } from './cleft';
+import { mountWrinkles, wireWrinkles, wrinkleHtml } from './wrinkles';
 import { drawPlanImages } from './draw';
 import { api, ApiError, type CaseRecord } from './api';
 import { ACCEPT, PhotoError, loadPhotoFile, loadPhotoUrl, openCamera, type CameraSession } from './photo';
@@ -65,7 +68,7 @@ export function mountStudio(root: HTMLElement): void {
     </aside>
     <main class="stage">
       <div class="tabs" role="tablist">
-        ${([['photo', 'Photo', 'Foto', ''], ['3d', '3D', '3D', ''], ['plan', 'Plan', 'Rencana', ''], ['video', 'Movement', 'Gerakan', 'video'], ['nose', 'Nose', 'Hidung', 'side']] as const).map(([k, en, id, b]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}${b ? `<small class="tab-badge ${b}">${b === 'video' ? T('video', 'video') : T('side photo', 'foto samping')}</small>` : ''}</button>`).join('')}
+        ${([['photo', 'Photo', 'Foto', ''], ['3d', '3D', '3D', ''], ['plan', 'Plan', 'Rencana', ''], ['video', 'Movement', 'Gerakan', 'video'], ['nose', 'Nose', 'Hidung', 'side'], ['cleft', 'Cleft', 'Sumbing', 'photo'], ['skin', 'Lines', 'Kerutan', 'photo']] as const).map(([k, en, id, b]) => `<button role="tab" data-tab="${k}" aria-selected="false">${T(en, id)}${b ? `<small class="tab-badge ${b}">${b === 'video' ? T('video', 'video') : b === 'side' ? T('side photo', 'foto samping') : T('photo', 'foto')}</small>` : ''}</button>`).join('')}
         <span class="busy" id="busy" hidden></span>
       </div>
       <div class="views">
@@ -80,6 +83,8 @@ export function mountStudio(root: HTMLElement): void {
         <div class="view" data-view="plan" hidden><div class="plan3" id="plan3"></div></div>
         <div class="view" data-view="video" hidden id="v-video"></div>
         <div class="view" data-view="nose" hidden id="v-nose"></div>
+        <div class="view" data-view="cleft" hidden id="v-cleft"></div>
+        <div class="view" data-view="skin" hidden id="v-skin"></div>
       </div>
     </main>
     <aside class="results" id="results" aria-label="${T('Results', 'Hasil')}"></aside>
@@ -90,6 +95,8 @@ export function mountStudio(root: HTMLElement): void {
 
   mountVideo(document.getElementById('v-video')!, () => renderResults());
   mountNose(document.getElementById('v-nose')!, () => renderResults());
+  mountCleft(document.getElementById('v-cleft')!, () => renderResults());
+  mountWrinkles(document.getElementById('v-skin')!, () => renderResults());
   view2d = new View2D(document.getElementById('v2d')!);
   view2d.onScaleRequest = (a, b) => askLength(a, b);
   wire(root);
@@ -199,6 +206,7 @@ async function playScan(token: number): Promise<void> {
 
 /** An example runs for real: photo, synthetic lesion, the studio's own analysis, then the three pictures with a staged reveal. */
 async function runExample(id: string): Promise<void> {
+  if (id.startsWith('r-')) { await runReal(id, setTab); return; }
   const sp = SPECS[id];
   if (!sp) return;
   setTab('photo');
@@ -341,9 +349,9 @@ function renderResults(): void {
   const stage = Math.min(STAGE_COUNT - 1, Math.floor(Number((document.getElementById('stage') as HTMLInputElement | null)?.value ?? 0)));
   const has = !!state.photo && !!state.gate && state.gate.status !== 'CANNOT_ASSESS';
   const refused = state.gate?.status === 'CANNOT_ASSESS';
-  if (state.tab === 'video' || state.tab === 'nose') {
-    el.innerHTML = `<div class="results-in">${state.tab === 'video' ? motionHtml() : noseHtml()}</div>`;
-    if (state.tab === 'video') paintMotion(el); else wireNose(el);
+  if (state.tab === 'video' || state.tab === 'nose' || state.tab === 'cleft' || state.tab === 'skin') {
+    el.innerHTML = `<div class="results-in">${state.tab === 'video' ? motionHtml() : state.tab === 'nose' ? noseHtml() : state.tab === 'cleft' ? cleftHtml() : wrinkleHtml()}</div>`;
+    if (state.tab === 'video') paintMotion(el); else if (state.tab === 'nose') wireNose(el); else if (state.tab === 'cleft') paintCleft(el); else wireWrinkles(el);
     return;
   }
   const body = !state.photo ? `<p class="muted">${T('Results appear here after you add a photograph.', 'Hasil muncul di sini setelah Anda menambahkan foto.')}</p>`

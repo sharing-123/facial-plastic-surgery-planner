@@ -1,6 +1,7 @@
-import { CANON } from '../face/geometry';
 import { loadPhotoFile } from './photo';
 import { T, esc } from './panels';
+import { compareSlider, warpPush, type Push } from './warp';
+import { noseReference } from './reference';
 import { lang, num } from '../i18n';
 
 /**
@@ -20,23 +21,6 @@ const NAMES: Record<Key, [string, string]> = {
 const st = { img: null as HTMLCanvasElement | HTMLImageElement | null, w: 0, h: 0, pts: {} as Partial<Record<Key, P>>, drag: null as Key | null, name: '', demo: false, target: 0.57, aug: 4, noseMm: null as number | null, onChange: () => { /* set on mount */ } };
 const angle = (a: P, v: P, b: P): number => { const x = [a[0] - v[0], a[1] - v[1]], y = [b[0] - v[0], b[1] - v[1]]; return (Math.acos(Math.max(-1, Math.min(1, (x[0] * y[0] + x[1] * y[1]) / (Math.hypot(...x) * Math.hypot(...y) || 1)))) * 180) / Math.PI; };
 const dist = (a: P, b: P): number => Math.hypot(a[0] - b[0], a[1] - b[1]);
-
-/** The canonical mesh seen from the side: a rendered test profile with a known shape, not a photograph. */
-function demoProfile(): void {
-  const mid = [10, 151, 9, 8, 168, 6, 197, 195, 5, 4, 1, 19, 94, 2, 164, 0, 11, 12, 13, 14, 17, 18, 200, 199, 175, 152];
-  const V = CANON.vertices;
-  const S = 560, k = 22; // canonical units are centimetres
-  const pt = (i: number): P => [S * 0.42 + (V[i][2] - 3) * k, S * 0.5 - V[i][1] * k];
-  const c = document.createElement('canvas'); c.width = c.height = S;
-  const g = c.getContext('2d')!; g.fillStyle = '#14161a'; g.fillRect(0, 0, S, S);
-  g.beginPath(); mid.forEach((i, n) => { const p = pt(i); n ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); });
-  const top = pt(10), bot = pt(152); g.lineTo(bot[0] - 230, bot[1]); g.lineTo(top[0] - 230, top[1]); g.closePath();
-  const gr = g.createLinearGradient(0, 0, S, 0); gr.addColorStop(0, '#3a302b'); gr.addColorStop(1, '#8c6e5e'); g.fillStyle = gr; g.fill();
-  g.strokeStyle = '#d9b8a6'; g.lineWidth = 3; g.lineJoin = 'round'; g.beginPath(); mid.forEach((i, n) => { const p = pt(i); n ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }); g.stroke();
-  st.img = c; st.w = c.width; st.h = c.height; st.name = T('Canonical face mesh, side view (rendered)', 'Mesh wajah kanonik, tampak samping (render)'); st.demo = true;
-  const cm = pt(1), sn = pt(2);
-  st.pts = { G: pt(9), N: pt(168), Prn: pt(1), Cm: [cm[0] * 0.45 + sn[0] * 0.55 + 3, cm[1] * 0.45 + sn[1] * 0.55], Sn: pt(2), Ls: pt(0), Pg: pt(175), Ac: pt(129) };
-}
 
 export function noseMetrics(): { nf: number; nl: number; goode: number; len: number; proj: number } | null {
   const p = st.pts; if (!KEYS.every(k => p[k])) return null;
@@ -60,6 +44,20 @@ function plan(): { prn: P; rhi: P; dorsal: [P, P, P]; shift: number } | null {
   return { prn, rhi, dorsal: [P.N, rhi, prn], shift: (dist(prn, P.Prn) / m.len) * 100 };
 }
 
+/** The planned geometry applied to the picture itself as a smooth push (tip forward, dorsum up). An illustration, not a prediction. */
+function simulate(): HTMLCanvasElement | null {
+  const pl = plan(), m = noseMetrics(); if (!pl || !m || !st.img) return null;
+  const P = st.pts as Record<Key, P>;
+  const mid: P = [(P.N[0] + P.Prn[0]) / 2, (P.N[1] + P.Prn[1]) / 2], len = m.len;
+  const tipDx = pl.prn[0] - P.Prn[0];
+  const pushes: Push[] = [
+    { x: P.Prn[0], y: P.Prn[1], dx: tipDx, dy: 0, sigma: 0.2 * len },
+    { x: P.Cm[0], y: P.Cm[1], dx: tipDx * 0.55, dy: 0, sigma: 0.16 * len },
+    { x: mid[0], y: mid[1], dx: pl.rhi[0] - mid[0], dy: pl.rhi[1] - mid[1], sigma: 0.22 * len },
+  ];
+  return warpPush(st.img as HTMLCanvasElement, pushes, 720);
+}
+
 const el = <E extends HTMLElement>(id: string): E => document.getElementById(id) as E;
 function xf(cv: HTMLCanvasElement): { k: number; ox: number; oy: number } { const k = Math.min(cv.width / st.w, cv.height / st.h); return { k, ox: (cv.width - st.w * k) / 2, oy: (cv.height - st.h * k) / 2 }; }
 
@@ -75,7 +73,6 @@ export function mountNose(host: HTMLElement, onChange: () => void): void {
       <div class="mv-ctl">
         <button class="btn small" data-ns="file">${T('Choose a side photo', 'Pilih foto samping')}</button>
         <input type="file" id="ns-file" accept="image/jpeg,image/png,image/webp" hidden>
-        <button class="btn ghost small" data-ns="demo">${T('Rendered test profile', 'Profil uji render')}</button>
         <button class="btn ghost small" data-ns="reset">${T('Clear points', 'Hapus titik')}</button>
       </div>
     </div>`;
@@ -87,7 +84,6 @@ export function mountNose(host: HTMLElement, onChange: () => void): void {
   host.addEventListener('click', e => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-ns]'); if (!b) return;
     if (b.dataset.ns === 'file') file.click();
-    else if (b.dataset.ns === 'demo') { demoProfile(); st.noseMm = null; refresh(); }
     else if (b.dataset.ns === 'reset') { st.pts = {}; refresh(); }
   });
   const cv = el<HTMLCanvasElement>('ns-cv');
@@ -150,7 +146,6 @@ export function noseHtml(): string {
   const row = (label: string, val: string, ref: string, b: { cls: string; txt: string }) => `<div class="ns-row ${b.cls}"><div><b>${esc(label)}</b><span>${esc(ref)}</span></div><strong>${esc(val)}</strong><em>${esc(b.txt)}</em></div>`;
   const mm = st.noseMm ? pl.shift / 100 * st.noseMm : null;
   return `${lead}
-    ${st.demo ? `<div class="banner">${T('Rendered test profile of the generic canonical face mesh, with points set by the program. It shows how the tool works; it is not a patient.', 'Profil uji hasil render dari mesh wajah kanonik generik, titik diatur program. Ini menunjukkan cara kerja alat; bukan pasien.')}</div>` : ''}
     <section class="mv-card"><h5>${T('Measured on the side view', 'Terukur pada tampak samping')}</h5>
       ${row(T('Nasofrontal angle', 'Sudut nasofrontal'), `${num(m.nf, 0)}°`, `${REF.nf[0]}–${REF.nf[1]}°`, nf)}
       ${row(T('Nasolabial angle', 'Sudut nasolabial'), `${num(m.nl, 0)}°`, `${REF.nl[0]}–${REF.nl[1]}° (${T('men lower, women higher', 'pria lebih kecil, wanita lebih besar')})`, nl)}
@@ -161,7 +156,9 @@ export function noseHtml(): string {
       <label class="ns-in">${T('Dorsal augmentation, % of nasal length', 'Augmentasi dorsum, % panjang hidung')} <input type="range" id="ns-aug" min="0" max="10" step="1" value="${st.aug}"><b>${st.aug}%</b></label>
       <label class="ns-in">${T('Nasion to tip length in mm (optional, for mm)', 'Panjang nasion ke ujung dalam mm (opsional, untuk mm)')} <input type="number" id="ns-mm" min="20" max="80" step="1" value="${st.noseMm ?? ''}" placeholder="mm"></label>
       <p class="mv-gap">${pl.shift < 0.5 ? T('The tip already reaches the target ratio, so no forward movement is drawn.', 'Ujung hidung sudah mencapai rasio target, jadi tidak ada gerakan ke depan yang digambar.') : T(`The dashed line moves the tip forward by ${num(pl.shift, 1)}% of the nasal length${mm ? ` (about ${num(mm, 1)} mm)` : ''} and raises the dorsum by ${st.aug}%.`, `Garis putus-putus memajukan ujung sebesar ${num(pl.shift, 1)}% panjang hidung${mm ? ` (sekitar ${num(mm, 1)} mm)` : ''} dan menaikkan dorsum ${st.aug}%.`)}</p>
-      <p class="fine">${T('A line drawing of geometry only. It does not predict the soft tissue. Skin thickness, cartilage, the airway and the whole face decide what is possible, and what to change is the patient\'s and surgeon\'s decision.', 'Gambar garis geometri saja. Tidak memprediksi jaringan lunak. Ketebalan kulit, tulang rawan, jalan napas, dan keseluruhan wajah menentukan apa yang mungkin, dan apa yang diubah adalah keputusan pasien dan dokter bedah.')}</p></section>`;
+      <div id="ns-sim"></div>
+      <p class="fine">${T('A line drawing of geometry only. It does not predict the soft tissue. Skin thickness, cartilage, the airway and the whole face decide what is possible, and what to change is the patient\'s and surgeon\'s decision.', 'Gambar garis geometri saja. Tidak memprediksi jaringan lunak. Ketebalan kulit, tulang rawan, jalan napas, dan keseluruhan wajah menentukan apa yang mungkin, dan apa yang diubah adalah keputusan pasien dan dokter bedah.')}</p></section>
+    ${noseReference(pl.shift >= 0.5, st.aug > 0, m.nf > REF.nf[1])}`;
 }
 
 /** Hooks the sliders that noseHtml() renders. */
@@ -173,6 +170,13 @@ export function wireNose(root: HTMLElement): void {
     i.addEventListener('change', () => st.onChange());
   };
   num2('ns-target', v => { st.target = v; }); num2('ns-aug', v => { st.aug = v; });
+  const host = root.querySelector<HTMLElement>('#ns-sim'), after = host ? simulate() : null;
+  if (host && after && st.img) {
+    const before = document.createElement('canvas'); before.width = after.width; before.height = after.height;
+    before.getContext('2d')!.drawImage(st.img, 0, 0, before.width, before.height);
+    host.appendChild(compareSlider(before, after, T('Now', 'Sekarang'), T('Planned (illustration)', 'Rencana (ilustrasi)')));
+  }
   root.querySelector<HTMLInputElement>('#ns-mm')?.addEventListener('change', e => { const v = Number((e.target as HTMLInputElement).value); st.noseMm = v > 0 ? v : null; st.onChange(); });
 }
 export const hasNose = (): boolean => !!st.img;
+

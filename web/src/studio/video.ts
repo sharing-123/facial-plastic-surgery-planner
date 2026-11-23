@@ -1,9 +1,9 @@
-import { analyseMotion, type Frame, type MotionReport, type MoveKey, type MoveResult, type Pt } from './motion';
-import { detectVideoFrame, startVideoSession } from './landmarker';
-import { renderSynth, type SynthSpec } from './synth';
-import { loadPhotoUrl } from './photo';
-import { detectFace } from './landmarker';
+import { analyseMotion, IRIS_MM, measure, type Frame, type Measures, type MotionReport, type MoveKey, type MoveResult, type Pt } from './motion';
+import { detectFace, detectVideoFrame, startVideoSession } from './landmarker';
+import { loadPhotoFile } from './photo';
 import { T, esc } from './panels';
+import { compareSlider, warpPush } from './warp';
+import { palsyReference, smileReference } from './reference';
 import { lang, num } from '../i18n';
 
 /**
@@ -11,7 +11,7 @@ import { lang, num } from '../i18n';
  * tracked frame by frame in the browser and compared right against left. Nothing is uploaded or stored. No grade, no verdict.
  */
 interface Thumb { c: HTMLCanvasElement; lm: Pt[] | null }
-const ui = { report: null as MotionReport | null, thumbs: [] as Thumb[], name: '', running: false, truth: null as SynthSpec | null, onChange: () => { /* set on mount */ } };
+const ui = { stats: [] as Array<{ m: Measures; name: string; thumb: Thumb }>, report: null as MotionReport | null, thumbs: [] as Thumb[], name: '', running: false, onChange: () => { /* set on mount */ } };
 const TH = 288;
 
 export const MOVE_NAME: Record<MoveKey, [string, string]> = {
@@ -44,25 +44,27 @@ export function mountVideo(host: HTMLElement, onChange: () => void): void {
         <button class="btn small" data-mv="record">${T('Record with the camera', 'Rekam dengan kamera')}</button>
         <button class="btn small" data-mv="file">${T('Choose a video', 'Pilih video')}</button>
         <input type="file" id="mv-file" accept="video/*" hidden>
-        <span class="mv-sep"></span>
-        <span class="fine">${T('Synthetic test, known answer:', 'Uji sintetis, jawaban diketahui:')}</span>
-        <button class="btn ghost small" data-mv="synth-smile">${T('Smile, left weaker', 'Senyum, kiri lebih lemah')}</button>
-        <button class="btn ghost small" data-mv="synth-brow">${T('Brow, right weaker', 'Alis, kanan lebih lemah')}</button>
-        <button class="btn ghost small" data-mv="synth-eye">${T('Eye closure, left incomplete', 'Tutup mata, kiri tidak penuh')}</button>
+        <button class="btn small" data-mv="stills">${T('Choose photos', 'Pilih foto')}</button>
+        <input type="file" id="mv-stills" accept="image/jpeg,image/png,image/webp" multiple hidden>
       </div>
       <canvas id="mv-chart-live" class="mv-live-chart" width="640" height="120" hidden></canvas>
     </div>`;
   const file = host.querySelector<HTMLInputElement>('#mv-file')!;
   file.addEventListener('change', () => { const f = file.files?.[0]; if (f) void runFile(f); file.value = ''; });
+  const stills = host.querySelector<HTMLInputElement>('#mv-stills')!;
+  stills.addEventListener('change', async () => {
+    const fs = [...(stills.files ?? [])]; stills.value = ''; if (!fs.length) return;
+    const list: StillIn[] = [];
+    for (const f of fs) { try { const p = await loadPhotoFile(f); list.push({ c: p.canvas, name: f.name }); } catch { /* skip unreadable */ } }
+    if (list.length) void runStills(list);
+  });
   host.addEventListener('click', e => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-mv]');
     if (!b || ui.running) return;
     const k = b.dataset.mv!;
     if (k === 'file') file.click();
+    else if (k === 'stills') stills.click();
     else if (k === 'record') void runLive();
-    else if (k === 'synth-smile') void runSynth({ smile: [1, 0.4] }, T('Synthetic smile', 'Senyum sintetis'));
-    else if (k === 'synth-brow') void runSynth({ brow: [0.3, 1] }, T('Synthetic brow raise', 'Alis sintetis'));
-    else if (k === 'synth-eye') void runSynth({ eye: [1, 0.6] }, T('Synthetic eye closure', 'Menutup mata sintetis'));
   });
   if (ui.report) paintStageIdle();
 }
@@ -73,7 +75,7 @@ function setRunning(on: boolean): void {
   if (on) startVideoSession();
   ui.running = on;
   document.querySelectorAll<HTMLButtonElement>('[data-mv]').forEach(b => { b.disabled = on; });
-  el('mv-empty').hidden = on || !!ui.report;
+  el('mv-empty').hidden = on || !!ui.report || ui.stats.length > 0;
   el('mv-chart-live').hidden = !on;
 }
 
@@ -121,8 +123,8 @@ function liveChart(frames: Frame[]): void {
   draw(s.brow.map(c => c.R), 'rgba(95,232,200,0.5)', -0.02, 0.12); draw(s.brow.map(c => c.L), 'rgba(255,143,110,0.5)', -0.02, 0.12);
 }
 
-async function finish(frames: Frame[], thumbs: Thumb[], name: string, truth: SynthSpec | null): Promise<void> {
-  ui.report = analyseMotion(frames); ui.thumbs = thumbs; ui.name = name; ui.truth = truth;
+async function finish(frames: Frame[], thumbs: Thumb[], name: string): Promise<void> {
+  ui.report = analyseMotion(frames); ui.thumbs = thumbs; ui.name = name;
   setRunning(false); paintStageIdle(); ui.onChange();
 }
 
@@ -136,27 +138,54 @@ function paintStageIdle(): void {
 }
 const nearest = (r: MotionReport, t: number): number => { let bi = 0, bd = Infinity; r.series.t.forEach((x, i) => { const d = Math.abs(x - t); if (d < bd) { bd = d; bi = i; } }); return bi; };
 
-async function runSynth(spec: SynthSpec, name: string): Promise<void> {
-  setRunning(true); ui.report = null;
-  const prompt = el('mv-prompt'); prompt.hidden = false; prompt.textContent = T('Generating the synthetic movement…', 'Membuat gerakan sintetis…');
+
+export interface StillIn { c: HTMLCanvasElement; name: string }
+
+/** Photographs instead of a clip: a rest photo first, then one photo per movement, or a single photo read statically. */
+export async function runStills(list: StillIn[], mode: 'series' | 'compare' = 'series'): Promise<void> {
+  setRunning(true); ui.report = null; ui.stats = [];
+  const prompt = el('mv-prompt'); prompt.hidden = false; prompt.textContent = T('Finding the face…', 'Mencari wajah…');
   try {
-    const photo = await loadPhotoUrl('/samples/sample-2.jpg', 'sample-2.jpg');
-    const det = await detectFace(photo.canvas);
-    if (!det.landmarks.length) throw new Error('no face');
-    const lm = det.landmarks.map(p => [p.x * photo.width, p.y * photo.height] as Pt);
-    const clip = await renderSynth(photo.canvas, lm, spec, p => { el('mv-bar').style.width = `${Math.round(p * 40)}%`; });
-    prompt.textContent = T('Tracking the clip…', 'Melacak klip…');
-    const frames: Frame[] = [], thumbs: Thumb[] = [];
-    for (let i = 0; i < clip.frames.length; i++) {
-      const c = clip.frames[i];
-      const l = await detectVideoFrame(c, Math.round((i * 1000) / clip.fps) + 1);
-      frames.push({ t: i / clip.fps, lm: l }); thumbs.push(thumbOf(c, l));
-      drawFrame(c, l, `${name} · ${(i / clip.fps).toFixed(1)} s`, 0.4 + 0.6 * (i / clip.frames.length));
-      if (i % 3 === 0) { liveChart(frames); await new Promise(r => setTimeout(r, 0)); }
+    const lms: Array<Pt[] | null> = [];
+    for (const s of list) {
+      const d = await detectFace(s.c);
+      lms.push(d.landmarks.length ? d.landmarks.map(p => [p.x * s.c.width, p.y * s.c.height] as Pt) : null);
+      drawFrame(s.c, lms[lms.length - 1], s.name, 0.5, true);
+      await new Promise(r => setTimeout(r, 350));
     }
     prompt.hidden = true;
-    await finish(frames, thumbs, name, spec);
-  } catch (err) { console.error(err); prompt.textContent = T('The synthetic clip could not be made on this device.', 'Klip sintetis tidak bisa dibuat di perangkat ini.'); setRunning(false); }
+    if (list.length === 1 || mode === 'compare') {
+      const got = list.map((s, i) => ({ s, lm: lms[i] })).filter(x => x.lm);
+      if (!got.length) { prompt.hidden = false; prompt.textContent = T('No face was found in the photo.', 'Wajah tidak ditemukan pada foto.'); setRunning(false); return; }
+      ui.stats = got.map(x => ({ m: measure(x.lm!), name: x.s.name, thumb: thumbOf(x.s.c, x.lm!) }));
+      ui.thumbs = []; setRunning(false); drawFrame(got[0].s.c, got[0].lm!, got[0].s.name, 0, false); ui.onChange(); return;
+    }
+    const frames: Frame[] = [], thumbs: Thumb[] = [];
+    const rest = lms[0];
+    for (let i = 0; i < 6; i++) { frames.push({ t: i * 0.1, lm: rest }); thumbs.push(thumbOf(list[0].c, rest)); }
+    for (let k = 1; k < list.length; k++) { frames.push({ t: 1 + k * 0.1, lm: lms[k] }); thumbs.push(thumbOf(list[k].c, lms[k])); }
+    await finish(frames, thumbs, list.map(s => s.name).join(' + '));
+  } catch (err) { console.error(err); prompt.hidden = false; prompt.textContent = T('The photos could not be read.', 'Foto tidak bisa dibaca.'); setRunning(false); }
+}
+
+function statCard(s: { m: Measures; name: string; thumb: Thumb }, i: number): string {
+  const m = s.m;
+  const mm = m.irisPx ? IRIS_MM / (m.irisPx / m.ocwPx) : null;
+  const val = (v: number) => (mm ? `${num(v * mm, 1)} mm` : `${num(v * 100, 1)}%`);
+  const row = (en: string, id: string, R: number, L: number, share = false) => `<div class="ns-row"><div><b>${esc(lang() === 'id' ? id : en)}</b><span>${T('right', 'kanan')} ${val(R)} · ${T('left', 'kiri')} ${val(L)}</span></div><strong>${share ? `${Math.round((Math.min(R, L) / Math.max(R, L, 1e-6)) * 100)}%` : val(Math.abs(R - L))}</strong><em>${share ? T('smaller side as a share of the larger', 'sisi kecil sebagai bagian dari sisi besar') : T('difference between the sides', 'selisih antar sisi')}</em></div>`;
+  return `<section class="mv-card"><h5>${esc(s.name)}</h5><canvas class="mv-peak mv-stat" data-i="${i}" width="${TH}" height="${TH}"></canvas>
+      ${row('Eyebrow height above the canthal line', 'Tinggi alis di atas garis kantus', m.brow.R, m.brow.L)}
+      ${row('Eye opening', 'Bukaan mata', Math.max(0, m.aperture.R), Math.max(0, m.aperture.L), true)}
+      ${row('Mouth corner, distance below the eye line', 'Sudut mulut, jarak di bawah garis mata', Math.abs(m.cornerY.R), Math.abs(m.cornerY.L))}</section>`;
+}
+
+function statHtml(): string {
+  const two = ui.stats.length === 2;
+  return `<div class="mv-badge photo">${two ? T('Two photos side by side', 'Dua foto berdampingan') : T('One photo: static reading', 'Satu foto: pembacaan statis')}</div>
+    ${two ? `<section class="mv-card"><h5>${T('Before and after', 'Sebelum dan sesudah')}</h5><div id="mv-stat-cmp"></div></section>` : ''}
+    ${ui.stats.map(statCard).join('')}
+    <p class="fine">${T('A photograph shows how the two sides sit in that pose, not how far each side can move, so one photo cannot tell a palsy from a resting asymmetry. Add a rest photo first, then the movement photos (smile, brow raise, eye closure), or a short video, to compare how far each side moves. The scale comes from the iris (11.7 mm, about ±5%). No grade and no diagnosis.', 'Foto menunjukkan letak kedua sisi pada pose itu, bukan seberapa jauh tiap sisi bisa bergerak, jadi satu foto tidak bisa membedakan palsi dari asimetri saat istirahat. Tambahkan foto istirahat lebih dulu, lalu foto gerakan (senyum, angkat alis, menutup mata), atau video singkat, untuk membandingkan seberapa jauh tiap sisi bergerak. Skala dari iris (11,7 mm, sekitar ±5%). Tanpa derajat dan tanpa diagnosis.')}</p>
+    ${palsyReference()}${smileReference()}`;
 }
 
 async function runFile(f: File): Promise<void> {
@@ -181,7 +210,7 @@ async function runFile(f: File): Promise<void> {
       if (i % 3 === 0) { liveChart(frames); await new Promise(r => setTimeout(r, 0)); }
     }
     prompt.hidden = true;
-    await finish(frames, thumbs, f.name, null);
+    await finish(frames, thumbs, f.name);
   } catch (err) { console.error(err); prompt.textContent = T('The video could not be read. Try an MP4 or WebM file.', 'Video tidak bisa dibaca. Coba berkas MP4 atau WebM.'); setRunning(false); }
   finally { URL.revokeObjectURL(url); }
 }
@@ -210,7 +239,7 @@ async function runLive(): Promise<void> {
       if (step % 3 === 0) liveChart(frames);
     }
     prompt.hidden = true;
-    await finish(frames, thumbs, T('Camera recording', 'Rekaman kamera'), null);
+    await finish(frames, thumbs, T('Camera recording', 'Rekaman kamera'));
   } catch (err) { console.error(err); prompt.textContent = T('No camera is available or permission was refused. Choose a video file instead.', 'Kamera tidak tersedia atau izin ditolak. Pilih berkas video.'); setRunning(false); }
   finally { stream?.getTracks().forEach(t => t.stop()); }
 }
@@ -244,29 +273,46 @@ function moveCard(m: MoveResult): string {
 
 export function motionHtml(): string {
   const r = ui.report;
+  if (!r && ui.stats.length) return statHtml();
   if (!r) return `<div class="banner">${T('Movement analysis needs a video: a smile, a brow raise and eye closure cannot be judged from one photo. Record or choose a clip on the left.', 'Analisis gerakan butuh video: senyum, angkat alis, dan menutup mata tidak bisa dinilai dari satu foto. Rekam atau pilih klip di kiri.')}</div>
     <p class="fine">${T('Photo is enough for lesions and static proportions. Video is needed for facial palsy and the smile. A side-view photo is needed for nose projection.', 'Foto cukup untuk lesi dan proporsi statis. Video diperlukan untuk kelumpuhan wajah dan senyum. Foto samping diperlukan untuk proyeksi hidung.')}</p>`;
   const q = r.quality;
   const flags = q.flags.map(f => `<li>${esc(FLAG[f]?.[lang() === 'id' ? 1 : 0] ?? f)}</li>`).join('');
-  const truth = ui.truth ? `<div class="banner">${T('Synthetic test pattern with a known answer: ', 'Pola uji sintetis dengan jawaban diketahui: ')}${[
-    ui.truth.smile ? T(`smile, left side set to ${Math.round(ui.truth.smile[1] * 100)}% of the right`, `senyum, sisi kiri diset ${Math.round(ui.truth.smile[1] * 100)}% dari kanan`) : '',
-    ui.truth.brow ? T(`brow, right side set to ${Math.round(ui.truth.brow[0] * 100)}% of the left`, `alis, sisi kanan diset ${Math.round(ui.truth.brow[0] * 100)}% dari kiri`) : '',
-    ui.truth.eye ? T(`eye closure, left side set to ${Math.round(ui.truth.eye[1] * 100)}% closed`, `menutup mata, sisi kiri diset ${Math.round(ui.truth.eye[1] * 100)}% tertutup`) : '',
-  ].filter(Boolean).join('; ')}. ${T('Compare it with the numbers below.', 'Bandingkan dengan angka di bawah.')}</div>` : '';
-  return `${truth}
+  return `
     <div class="mv-badge">${T('Needs video', 'Butuh video')}</div>
     ${r.moves.map(moveCard).join('')}
+    ${smileSimCard(r)}
     <section class="mv-card"><h5>${T('Over time', 'Sepanjang waktu')}</h5><canvas id="mv-chart" width="520" height="220"></canvas>
       <p class="fine"><span class="lg R"></span>${esc(sideName('R'))} <span class="lg L"></span>${esc(sideName('L'))} · ${T('mouth corner lift (solid), brow lift (dashed)', 'angkat sudut mulut (garis penuh), angkat alis (putus-putus)')}</p></section>
     <section class="mv-card"><h5>${T('Quality of the clip', 'Kualitas klip')}</h5>
       <p class="fine">${q.detected}/${q.frames} ${T('frames with a face', 'frame dengan wajah')} · ${r.durationS.toFixed(1)} s${r.mmPerOcw ? ` · ${T('scale from the iris (11.7 mm), about', 'skala dari iris (11,7 mm), sekitar')} ${num(r.mmPerOcw, 0)} mm ${T('per outer-canthal width', 'per lebar kantus luar')}` : ''}</p>
       ${flags ? `<ul class="fine">${flags}</ul>` : `<p class="fine">${T('No quality problem found.', 'Tidak ada masalah kualitas.')}</p>`}</section>
     <p class="fine">${T('Tested on synthetic clips with a known answer: the smile gap was recovered closely (set 40%, measured 41%), but the face model under-stated the brow gap (set 30%, measured 61%) and the eye-closure gap (set 60% closed, ratio 75%). Read a smaller gap as a lower bound: the real difference between the sides can be larger than shown.', 'Diuji pada klip sintetis dengan jawaban diketahui: selisih senyum terbaca hampir tepat (diset 40%, terukur 41%), tetapi model wajah meremehkan selisih alis (diset 30%, terukur 61%) dan selisih menutup mata (diset tertutup 60%, rasio 75%). Anggap selisih yang kecil sebagai batas bawah: beda sebenarnya antar sisi bisa lebih besar dari yang tampak.')}</p>
-    <p class="fine disclaimer">${T('Screening numbers for a clinician to read beside the examination. No grade, no diagnosis, and no verdict. The right side is the patient\'s right. Blinking can look like eye closure, so ask for a slow, full closure. A video cannot show cause: a normal result does not exclude palsy, and an abnormal one does not prove it.', 'Angka skrining untuk dibaca dokter bersama pemeriksaan. Tanpa derajat, tanpa diagnosis, tanpa vonis. Sisi kanan adalah kanan pasien. Berkedip bisa terbaca sebagai menutup mata, jadi minta penutupan penuh yang pelan. Video tidak menunjukkan penyebab: hasil normal tidak menyingkirkan kelumpuhan, dan hasil abnormal tidak membuktikannya.')}</p>`;
+    <p class="fine disclaimer">${T('Screening numbers for a clinician to read beside the examination. No grade, no diagnosis, and no verdict. The right side is the patient\'s right. Blinking can look like eye closure, so ask for a slow, full closure. A video cannot show cause: a normal result does not exclude palsy, and an abnormal one does not prove it.', 'Angka skrining untuk dibaca dokter bersama pemeriksaan. Tanpa derajat, tanpa diagnosis, tanpa vonis. Sisi kanan adalah kanan pasien. Berkedip bisa terbaca sebagai menutup mata, jadi minta penutupan penuh yang pelan. Video tidak menunjukkan penyebab: hasil normal tidak menyingkirkan kelumpuhan, dan hasil abnormal tidak membuktikannya.')}</p>
+    ${r.moves.some(m => m.seen && m.weaker && m.weaker !== 'none') ? palsyReference() + smileReference() : ''}`;
+}
+
+function smileSimCard(r: MotionReport): string {
+  const m = r.moves.find(x => x.key === 'smile');
+  if (!m || !m.seen || !m.weaker || m.weaker === 'none') return '';
+  return `<section class="mv-card"><h5>${T('Illustration: the smile if the weaker corner matched the stronger one', 'Ilustrasi: senyum bila sudut yang lemah setara dengan yang kuat')}</h5><div id="mv-smile-sim"></div>
+    <p class="fine">${T('The weaker corner is lifted by the measured gap. It shows the size of the difference, not what an operation, toxin or therapy would achieve.', 'Sudut yang lemah diangkat sebesar selisih terukur. Ini menunjukkan besar selisihnya, bukan hasil operasi, toksin atau terapi.')}</p></section>`;
 }
 
 /** Draws the canvases that motionHtml() leaves empty: the peak frame of each movement and the time chart. */
 export function paintMotion(root: HTMLElement): void {
+  root.querySelectorAll<HTMLCanvasElement>('.mv-stat').forEach(sc => {
+    const s = ui.stats[Number(sc.dataset.i)]; if (!s) return;
+    const th = s.thumb, k = sc.width / th.c.width; sc.height = Math.round(th.c.height * k);
+    const ctx = sc.getContext('2d')!; ctx.drawImage(th.c, 0, 0, sc.width, sc.height);
+    if (th.lm) { const L = th.lm.map(p => [p[0] * k, p[1] * k] as Pt); ctx.fillStyle = '#5fe8c8'; for (const i of [61, 159, 145, 105]) ctx.fillRect(L[i][0] - 2.5, L[i][1] - 2.5, 5, 5); ctx.fillStyle = '#ff8f6e'; for (const i of [291, 386, 374, 334]) ctx.fillRect(L[i][0] - 2.5, L[i][1] - 2.5, 5, 5); }
+  });
+  const cmp = root.querySelector<HTMLElement>('#mv-stat-cmp');
+  if (cmp && ui.stats.length === 2) {
+    const [a, b] = ui.stats.map(x => x.thumb.c);
+    const same = document.createElement('canvas'); same.width = a.width; same.height = a.height; same.getContext('2d')!.drawImage(b, 0, 0, a.width, a.height);
+    cmp.appendChild(compareSlider(a, same, T('Before', 'Sebelum'), T('After', 'Sesudah')));
+  }
   const r = ui.report; if (!r) return;
   root.querySelectorAll<HTMLCanvasElement>('.mv-peak').forEach(cv => {
     const m = r.moves.find(x => x.key === cv.dataset.key)!; const th = ui.thumbs[nearest(r, m.peakT)]; if (!th) return;
@@ -287,6 +333,17 @@ export function paintMotion(root: HTMLElement): void {
     }
     ctx.font = '11px "JetBrains Mono", monospace'; ctx.fillStyle = '#fff'; ctx.fillText(`${m.peakT.toFixed(1)} s`, 8, cv.height - 8);
   });
+  const sim = root.querySelector<HTMLElement>('#mv-smile-sim'), sm = r.moves.find(x => x.key === 'smile');
+  if (sim && sm && sm.weaker && sm.weaker !== 'none') {
+    const th = ui.thumbs[nearest(r, sm.peakT)];
+    if (th?.lm) {
+      const ocw = Math.hypot(th.lm[263][0] - th.lm[33][0], th.lm[263][1] - th.lm[33][1]), gap = Math.abs(sm.value.R - sm.value.L) * ocw;
+      const wi = sm.weaker === 'R' ? 61 : 291, out = sm.weaker === 'R' ? -1 : 1;
+      const after = warpPush(th.c, [{ x: th.lm[wi][0], y: th.lm[wi][1], dx: out * gap * 0.35, dy: -gap, sigma: 0.16 * ocw }], 600);
+      const before = document.createElement('canvas'); before.width = after.width; before.height = after.height; before.getContext('2d')!.drawImage(th.c, 0, 0, before.width, before.height);
+      sim.appendChild(compareSlider(before, after, T('Measured', 'Terukur'), T('Balanced (illustration)', 'Seimbang (ilustrasi)')));
+    }
+  }
   const ch = root.querySelector<HTMLCanvasElement>('#mv-chart');
   if (ch) {
     const ctx = ch.getContext('2d')!, s = r.series; ctx.clearRect(0, 0, ch.width, ch.height);
@@ -304,4 +361,5 @@ export function paintMotion(root: HTMLElement): void {
   }
 }
 
-export const hasMotion = (): boolean => !!ui.report;
+export const hasMotion = (): boolean => !!ui.report || ui.stats.length > 0;
+

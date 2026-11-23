@@ -10,7 +10,7 @@ import { describe, growLesion, workImage, type Lesion, type WorkImage } from '..
 import { detectFace } from './landmarker';
 import type { LoadedPhoto } from './photo';
 
-export type Tab = 'photo' | '3d' | 'plan' | 'video' | 'nose';
+export type Tab = 'photo' | '3d' | 'plan' | 'video' | 'nose' | 'cleft' | 'skin';
 export interface Layers2D { landmarks: boolean; grid: boolean; zones: boolean; rstl: boolean; lesion: boolean }
 
 export interface StudioState {

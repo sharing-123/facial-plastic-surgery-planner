@@ -1,5 +1,6 @@
 import { lang } from '../i18n';
 import { T, esc } from './panels';
+import { realHtml } from './real';
 import { commitMask, paintMask, setCtx, state, tapLesion } from './store';
 import { workImage } from '../clinical/segment';
 
@@ -74,6 +75,7 @@ export async function openExamples(onPick: (id: string) => void): Promise<void> 
       <p>${esc(String(e.region[l] ?? e.region.en))} · ${esc(String(e.diagnosis[l] ?? e.diagnosis.en))}</p>
       <button type="button" class="ex-sheet" data-sheet="${esc(e.sheet[l] ?? e.sheet.en)}">${T('Summary sheet', 'Lembar ringkasan')}</button>
     </article>`).join('');
+    body.insertAdjacentHTML('beforeend', await realHtml());
     const pick = (el: HTMLElement) => { closeExamples(); onPick(el.dataset.ex!); };
     body.querySelectorAll<HTMLElement>('.ex-card').forEach(c => {
       c.addEventListener('click', ev => { if ((ev.target as HTMLElement).closest('.ex-sheet')) return; pick(c); });
