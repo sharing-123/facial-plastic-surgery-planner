@@ -109,8 +109,8 @@
 @media (max-width: 860px) { .rail-nav { display: none; } }
 
 /* ghost numerals, sweep line, reticle */
-.ghost { position: absolute; top: 12vh; right: 3vw; font: 300 clamp(9rem, 24vw, 22rem)/1 var(--font); letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 1px rgba(236, 232, 226, 0.07); pointer-events: none; user-select: none; z-index: -1; }
-.ghost.left { right: auto; left: 3vw; }
+.ghost-num { position: absolute; top: 12vh; right: 3vw; font: 300 clamp(9rem, 24vw, 22rem)/1 var(--font); letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 1px rgba(236, 232, 226, 0.07); pointer-events: none; user-select: none; z-index: -1; }
+.ghost-num.left { right: auto; left: 3vw; }
 .sweep { position: fixed; left: 0; right: 0; top: 0; height: 100vh; z-index: 22; pointer-events: none; opacity: 0; background: linear-gradient(to bottom, transparent 46%, rgba(95, 232, 200, 0.05) 49%, rgba(200, 255, 240, 0.55) 50%, rgba(95, 232, 200, 0.05) 51%, transparent 54%); }
 .reticle { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; opacity: 0; transition: opacity 200ms var(--ease); }
 .reticle.on { opacity: 1; }

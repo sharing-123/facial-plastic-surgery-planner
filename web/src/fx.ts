@@ -24,7 +24,7 @@ export function initFx(sections: HTMLElement[], goTo: (i: number) => void): (u: 
   // ghost numerals
   const ghosts = sections.map((s, i) => {
     const g = document.createElement('div');
-    g.className = 'ghost' + (i % 2 ? ' left' : ''); g.setAttribute('aria-hidden', 'true');
+    g.className = 'ghost-num' + (i % 2 ? ' left' : ''); g.setAttribute('aria-hidden', 'true');
     g.textContent = String(i).padStart(2, '0');
     s.appendChild(g);
     return g;

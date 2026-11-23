@@ -2,7 +2,8 @@ import { applyDom, lang, num, onLang } from '../i18n';
 import { View2D } from './view2d';
 import type { FaceViewer } from './viewer3d';
 import { STAGE_COUNT, type SurgeryMode } from './surgery3d';
-import { openExamples, closeExamples } from './examples';
+import { applySpec, closeExamples, openExamples, SPECS } from './examples';
+import { playTheater } from './theater';
 import { drawPlanImages } from './draw';
 import { api, ApiError, type CaseRecord } from './api';
 import { ACCEPT, PhotoError, loadPhotoFile, loadPhotoUrl, openCamera, type CameraSession } from './photo';
@@ -106,6 +107,9 @@ function wire(root: HTMLElement): void {
   drop.addEventListener('dragleave', () => drop.classList.remove('over'));
   drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer?.files?.[0]; if (f) void takeFile(f); });
   drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } });
+  const ex = document.getElementById('examples')!;
+  ex.addEventListener('click', e => { if (e.target === ex) closeExamples(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && !ex.hidden) closeExamples(); });
   const code = document.getElementById('case-code') as HTMLInputElement;
   code.addEventListener('input', () => { state.code = code.value.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24); });
   root.addEventListener('click', e => {
@@ -119,7 +123,7 @@ function wire(root: HTMLElement): void {
     const act = el.dataset.act;
     if (act === 'upload') file.click();
     else if (act === 'camera') void startCamera();
-    else if (act === 'examples') void openExamples();
+    else if (act === 'examples') void openExamples(id => void runExample(id));
     else if (act === 'examples-close') closeExamples();
     else if (act === 'cam-snap') void snap();
     else if (act === 'cam-close') closeCamera();
@@ -168,13 +172,43 @@ async function takeFile(f: File): Promise<void> {
     if (my !== loadToken) return; // a newer photo was added while this one was being read
     await setPhoto(p);
     view2d?.fit();
+    void playScan(my);
   } catch (e) { setStatus(e instanceof PhotoError ? e.code : 'decode'); }
 }
 
-async function loadSample(i: number): Promise<void> {
+async function loadSample(i: number, play = true): Promise<void> {
   const s = SAMPLES[i] ?? SAMPLES[0];
   const my = ++loadToken;
-  try { const p = await loadPhotoUrl(s.url, s.name); if (my !== loadToken) return; await setPhoto(p, s.name); view2d?.fit(); } catch { setStatus('decode'); }
+  try { const p = await loadPhotoUrl(s.url, s.name); if (my !== loadToken) return; await setPhoto(p, s.name); view2d?.fit(); if (play) void playScan(my); } catch { setStatus('decode'); }
+}
+
+/** The analysis played on screen over the photo view; a newer photo cancels it. */
+async function playScan(token: number): Promise<void> {
+  if (token !== loadToken || !state.lm || state.tab !== 'photo') return;
+  const views = document.querySelector<HTMLElement>('.views');
+  if (views) await playTheater(views);
+}
+
+/** An example runs for real: photo, synthetic lesion, the studio's own analysis, then the three pictures with a staged reveal. */
+async function runExample(id: string): Promise<void> {
+  const sp = SPECS[id];
+  if (!sp) return;
+  setTab('photo');
+  await loadSample(sp.sample, false);
+  const my = loadToken;
+  const ok = await applySpec(id);
+  view2d?.fit();
+  if (my !== loadToken) return;
+  const views = document.querySelector<HTMLElement>('.views');
+  if (views) await playTheater(views);
+  if (my !== loadToken) return;
+  if (ok) {
+    patch({ layers: { ...state.layers, lesion: true, landmarks: false } });
+    setTab('plan');
+    const host = document.getElementById('plan3');
+    host?.classList.add('reveal');
+    setTimeout(() => host?.classList.remove('reveal'), 2400);
+  }
 }
 
 async function startCamera(): Promise<void> {
@@ -186,7 +220,7 @@ async function startCamera(): Promise<void> {
   } catch { document.getElementById('msg')!.textContent = T('No camera is available or permission was refused. Add a photograph from a file instead.', 'Kamera tidak tersedia atau izin ditolak. Tambahkan foto dari berkas.'); document.getElementById('msg')!.classList.add('bad'); }
 }
 function closeCamera(): void { cams?.stop(); cams = undefined; document.getElementById('cam')!.hidden = true; }
-async function snap(): Promise<void> { if (!cams) return; const p = cams.snap(); closeCamera(); await setPhoto(p); view2d?.fit(); }
+async function snap(): Promise<void> { if (!cams) return; const p = cams.snap(); closeCamera(); const my = ++loadToken; await setPhoto(p); view2d?.fit(); void playScan(my); }
 
 let askPending: ((v: number | null) => void) | null = null;
 function askLength(a: [number, number], b: [number, number]): void {

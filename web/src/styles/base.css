@@ -76,3 +76,5 @@ body[data-view='studio'] #landing { display: none; }
 .no-webgl #landing { pointer-events: auto; }
 .no-webgl .chapter { min-height: auto; padding-top: 12vh; }
 .no-webgl .copy, .no-webgl .hero-copy, .no-webgl .studio-copy { position: static; }
+
+body[data-view='studio'] .hud, body[data-view='studio'] .rail-nav, body[data-view='studio'] .tags, body[data-view='studio'] .sweep { display: none !important; }

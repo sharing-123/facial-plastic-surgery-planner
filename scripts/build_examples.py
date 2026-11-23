@@ -1,7 +1,9 @@
 """Turn the captured example renders into the backend gallery: server/examples/*.jpg + examples.json.
 
-The wounds in the examples are SYNTHETIC lines drawn on public-domain portraits (see web/public/samples/ATTRIBUTION.json) so the
-outputs of the studio can be shown without any patient data. Run after capturing ex<i>_{zones,rstl,measured,marking,result}.png.
+The numbers come from the studio's own analysis of each example (web/src/studio/examples.ts specs, captured through
+window.__studio), so the gallery cards and sheets agree with what a live run shows. The wounds are SYNTHETIC lines drawn on
+public-domain portraits (web/public/samples/ATTRIBUTION.json); no patient data. Capture ex<i>_{measured,marking,result}.png first,
+then:  python scripts/build_examples.py <capture_dir>   and   python scripts/build_sheets.py
 """
 import json
 import sys
@@ -17,42 +19,43 @@ TECH = {
     "t.primary": ("Layered primary closure", "Penutupan primer berlapis"),
     "t.ellipse_min": ("Undermining and minimal elliptical excision", "Undermining dan eksisi elips minimal"),
     "t.z": ("Z-plasty", "Z-plasty"),
+    "t.w": ("W-plasty", "W-plasty"),
 }
 DX = {"laceration": ("Laceration", "Laserasi"), "scar": ("Mature linear scar", "Parut linear matang")}
-REGION = {"forehead": ("forehead", "dahi"), "cheek": ("cheek", "pipi"), "chin": ("chin", "dagu"), "eyecheek": ("lateral cheek below the eye", "pipi lateral di bawah mata")}
 SETTING = {"clinic": ("Outpatient clinic", "Poli rawat jalan"), "ed": ("Emergency department", "IGD"), "refer": ("Refer", "Rujuk")}
 
+# Output of the live analysis (captured from the studio), plus the wording that does not depend on a number.
 ITEMS = [
-    dict(i=0, sample="sample-1.jpg", kind="laceration", region="forehead", len=27.5, ang=31.7, axis=0, dx="laceration", share=37, size=(28.6, 6.2),
-         depth=(1.7, 3.0, 4.8), techs=["t.primary"], level="clinic", mid=0.924, nasal=97.8, mirror=2.1,
-         title=("Oblique forehead laceration", "Laserasi dahi oblik"),
-         note=("A synthetic 27 mm laceration drawn on a public-domain portrait. It lies 32 degrees off the forehead's horizontal lines, an intermediate angle.",
-               "Laserasi sintetis 27 mm yang digambar pada potret domain publik. Letaknya 32 derajat dari garis horizontal dahi, sudut sedang.")),
-    dict(i=1, sample="sample-2.jpg", kind="laceration", region="forehead", len=34.0, ang=13.7, axis=0, dx="laceration", share=34, size=(35.5, 6.9),
-         depth=(1.7, 3.0, 4.8), techs=["t.primary", "t.ellipse_min"], level="clinic", mid=0.959, nasal=87.1, mirror=2.97,
+    dict(id="ex1", sample="sample-1.jpg", region=("brow and forehead", "alis dan dahi"), kind=("laceration", "laserasi"),
+         m=dict(len=24.5, ang=48.6, axis=90, share=34, size=(28.2, 4.1), depth=(1.7, 3.0, 4.8), techs=["t.primary"], level="clinic", mid=0.924, nasal=97.8, mirror=2.1),
+         title=("Oblique laceration at the brow and forehead", "Laserasi oblik di alis dan dahi"),
+         tail=("It crosses the skin lines at an intermediate angle, so the plan keeps layered primary closure and marks the first sutures by halving.",
+               "Laserasi memotong garis kulit pada sudut sedang, jadi rencana tetap penutupan primer berlapis dan jahitan pertama ditandai dengan halving.")),
+    dict(id="ex2", sample="sample-2.jpg", region=("forehead", "dahi"), kind=("laceration", "laserasi"),
+         m=dict(len=34.3, ang=4.6, axis=0, share=34, size=(40.0, 5.7), depth=(1.7, 3.0, 4.8), techs=["t.primary"], level="clinic", mid=0.959, nasal=87.1, mirror=2.97),
          title=("Horizontal forehead laceration, favourable direction", "Laserasi dahi horizontal, arah menguntungkan"),
-         note=("A synthetic 34 mm laceration that runs along the forehead lines, so the angle to RSTL is only 14 degrees. The plan keeps closure simple.",
-               "Laserasi sintetis 34 mm yang searah garis dahi, jadi sudut terhadap RSTL hanya 14 derajat. Rencana menjaga penutupan tetap sederhana.")),
-    dict(i=2, sample="sample-3.jpg", kind="scar", region="cheek", len=29.8, ang=64.8, axis=152, dx="scar", share=68, size=(30.6, 3.9),
-         depth=(0.7, 1.3, 2.0), techs=["t.z"], level="clinic", mid=0.84, nasal=96.2, mirror=1.2,
-         title=("Widened cheek scar across the skin lines", "Parut pipi melebar memotong garis kulit"),
-         note=("A synthetic 14 month old scar lying 65 degrees across RSTL. The plan moves from an ellipse to a Z-plasty because an ellipse would be too long.",
-               "Parut sintetis berusia 14 bulan yang memotong RSTL 65 derajat. Rencana beralih dari elips ke Z-plasty karena elips akan terlalu panjang.")),
-    dict(i=3, sample="sample-2.jpg", kind="laceration", region="chin", len=27.9, ang=36.0, axis=0, dx="laceration", share=34, size=(33.2, 5.7),
-         depth=(2.1, 3.8, 6.1), techs=["t.primary"], level="clinic", mid=0.959, nasal=87.1, mirror=2.97,
+         tail=("It runs along the forehead lines, so the angle to the skin tension lines is small and closure stays simple.",
+               "Laserasi searah garis dahi, jadi sudut terhadap garis tegangan kulit kecil dan penutupan tetap sederhana.")),
+    dict(id="ex3", sample="sample-3.jpg", region=("cheek near the lip", "pipi dekat bibir"), kind=("scar", "parut"),
+         m=dict(len=33.5, ang=73.8, axis=33.9, share=68, size=(36.1, 3.3), depth=(0.7, 1.3, 2.0), techs=["t.w"], level="clinic", mid=0.84, nasal=96.2, mirror=1.2),
+         title=("Long cheek scar across the skin lines", "Parut pipi panjang memotong garis kulit"),
+         tail=("It lies across the skin lines, so a W-plasty breaks the line and moves part of it into them.",
+               "Parut berada melintang garis kulit, jadi W-plasty memecah garisnya dan memindahkan sebagian ke arah garis.")),
+    dict(id="ex4", sample="sample-2.jpg", region=("chin", "dagu"), kind=("laceration", "laserasi"),
+         m=dict(len=27.9, ang=36.0, axis=0, share=34, size=(33.2, 5.7), depth=(2.1, 3.8, 6.1), techs=["t.primary"], level="clinic", mid=0.959, nasal=87.1, mirror=2.97),
          title=("Oblique chin laceration", "Laserasi dagu oblik"),
-         note=("A synthetic 28 mm laceration on the chin, 36 degrees off the skin lines. Closure is layered and primary, and the plan lists the lip border as a landmark to align first.",
-               "Laserasi sintetis 28 mm di dagu, 36 derajat dari garis kulit. Penutupan berlapis primer, dan rencana menyebut batas bibir sebagai landmark yang disejajarkan lebih dulu.")),
-    dict(i=4, sample="sample-3.jpg", kind="scar", region="forehead", len=19.1, ang=72.1, axis=0, dx="scar", share=68, size=(21.7, 3.2),
-         depth=(0.7, 1.3, 2.0), techs=["t.z"], level="clinic", mid=0.84, nasal=96.2, mirror=1.2,
+         tail=("Closure is layered and primary, and the plan lists the lip border as the landmark to align first.",
+               "Penutupan berlapis primer, dan rencana menyebut batas bibir sebagai landmark yang disejajarkan lebih dulu.")),
+    dict(id="ex5", sample="sample-3.jpg", region=("forehead", "dahi"), kind=("scar", "parut"),
+         m=dict(len=19.1, ang=72.1, axis=0, share=68, size=(21.7, 3.2), depth=(0.7, 1.3, 2.0), techs=["t.z"], level="clinic", mid=0.84, nasal=96.2, mirror=1.2),
          title=("Vertical forehead scar across the lines", "Parut dahi vertikal memotong garis"),
-         note=("A synthetic 19 mm scar standing 72 degrees across the horizontal forehead lines, the worst direction for a scar. Revision by Z-plasty re-aligns part of it with the lines.",
-               "Parut sintetis 19 mm yang berdiri 72 derajat melintang garis horizontal dahi, arah terburuk untuk parut. Revisi dengan Z-plasty menyejajarkan sebagian parut dengan garis.")),
-    dict(i=5, sample="sample-1.jpg", kind="laceration", region="eyecheek", len=20.5, ang=72.8, axis=32.4, dx="laceration", share=19, size=(24.6, 4.2),
-         depth=(2.6, 4.8, 7.7), techs=["t.primary"], level="clinic", mid=0.924, nasal=97.8, mirror=2.1,
+         tail=("It stands across the horizontal forehead lines, the worst direction for a scar. A Z-plasty re-aligns part of it with the lines.",
+               "Parut berdiri melintang garis horizontal dahi, arah terburuk untuk parut. Z-plasty menyejajarkan sebagian parut dengan garis.")),
+    dict(id="ex6", sample="sample-1.jpg", region=("cheek below the eye", "pipi di bawah mata"), kind=("laceration", "laserasi"),
+         m=dict(len=20.5, ang=72.8, axis=32.4, share=19, size=(24.6, 4.2), depth=(2.6, 4.8, 7.7), techs=["t.primary"], level="clinic", mid=0.924, nasal=97.8, mirror=2.1),
          title=("Cheek laceration beside the lower eyelid", "Laserasi pipi di samping kelopak bawah"),
-         note=("A synthetic 20 mm laceration that starts close to the lower eyelid and runs 73 degrees across the skin lines. The differential share is low because no history was entered, so the plan flags the periorbital structures to check first.",
-               "Laserasi sintetis 20 mm yang mulai dekat kelopak mata bawah dan memotong garis kulit 73 derajat. Porsi diferensial rendah karena riwayat belum diisi, sehingga rencana menandai struktur periorbital untuk diperiksa lebih dulu.")),
+         tail=("It starts close to the lower eyelid. The differential share is low because no history was entered, so the plan flags the periorbital structures to check first.",
+               "Laserasi mulai dekat kelopak bawah. Porsi diferensial rendah karena riwayat belum diisi, sehingga rencana menandai struktur periorbital untuk diperiksa lebih dulu.")),
 ]
 CAPTIONS = {
     "zones": ("Zone atlas and landmarks", "Atlas zona dan landmark"),
@@ -63,25 +66,29 @@ CAPTIONS = {
 }
 
 out = []
-for it in ITEMS:
+for n, it in enumerate(ITEMS):
+    m = it["m"]
     imgs = []
     for k, (en, idn) in CAPTIONS.items():
-        if not (SRC / f"ex{it['i']}_{k}.png").is_file():
+        f = SRC / f"ex{n}_{k}.png"
+        if not f.is_file():
             continue
-        im = Image.open(SRC / f"ex{it['i']}_{k}.png").convert("RGB")
-        name = f"ex{it['i'] + 1}_{k}.jpg"
-        im.save(OUT / name, "JPEG", quality=84, optimize=True)
+        name = f"{it['id']}_{k}.jpg"
+        Image.open(f).convert("RGB").save(OUT / name, "JPEG", quality=84, optimize=True)
         imgs.append({"file": name, "caption": {"en": en, "id": idn}})
+    note = (f"A synthetic {m['len']:.0f} mm {it['kind'][0]} on a public-domain portrait, {m['ang']:.0f} degrees to the skin tension lines. {it['tail'][0]}",
+            f"{it['kind'][1].capitalize()} sintetis {m['len']:.0f} mm pada potret domain publik, {m['ang']:.0f} derajat terhadap garis tegangan kulit. {it['tail'][1]}")
+    dxk = "laceration" if it["kind"][0] == "laceration" else "scar"
     out.append({
-        "id": f"ex{it['i'] + 1}", "sample": it["sample"], "synthetic": True,
-        "title": {"en": it["title"][0], "id": it["title"][1]}, "note": {"en": it["note"][0], "id": it["note"][1]},
-        "region": {"en": REGION[it["region"]][0], "id": REGION[it["region"]][1]},
-        "diagnosis": {"en": DX[it["dx"]][0], "id": DX[it["dx"]][1], "share_percent": it["share"]},
-        "numbers": {"length_mm": it["len"], "angle_to_rstl_deg": it["ang"], "rstl_axis_deg": it["axis"], "size_mm": list(it["size"]),
-                    "depth_mm": {"low": it["depth"][0], "estimate": it["depth"][1], "high": it["depth"][2]},
-                    "middle_to_lower_third": it["mid"], "nasal_index": it["nasal"], "mirror_asymmetry_mm": it["mirror"]},
-        "techniques": [{"en": TECH[t][0], "id": TECH[t][1]} for t in it["techs"]],
-        "setting": {"en": SETTING[it["level"]][0], "id": SETTING[it["level"]][1]},
+        "id": it["id"], "sample": it["sample"], "synthetic": True,
+        "title": {"en": it["title"][0], "id": it["title"][1]}, "note": {"en": note[0], "id": note[1]},
+        "region": {"en": it["region"][0], "id": it["region"][1]},
+        "diagnosis": {"en": DX[dxk][0], "id": DX[dxk][1], "share_percent": m["share"]},
+        "numbers": {"length_mm": m["len"], "angle_to_rstl_deg": m["ang"], "rstl_axis_deg": m["axis"], "size_mm": list(m["size"]),
+                    "depth_mm": {"low": m["depth"][0], "estimate": m["depth"][1], "high": m["depth"][2]},
+                    "middle_to_lower_third": m["mid"], "nasal_index": m["nasal"], "mirror_asymmetry_mm": m["mirror"]},
+        "techniques": [{"en": TECH[t][0], "id": TECH[t][1]} for t in m["techs"]],
+        "setting": {"en": SETTING[m["level"]][0], "id": SETTING[m["level"]][1]},
         "images": imgs,
     })
 (OUT / "examples.json").write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf8")
