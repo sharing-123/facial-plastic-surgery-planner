@@ -1,0 +1,13 @@
+# Local full-stack check with a real PostgreSQL:  docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: facestudio, POSTGRES_PASSWORD: facestudio, POSTGRES_DB: facestudio }
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U facestudio"], interval: 3s, timeout: 3s, retries: 20 }
+  app:
+    build: .
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      DATABASE_URL: postgresql://facestudio:facestudio@db:5432/facestudio
+      PORT: "7860"
+    ports: ["8781:7860"]

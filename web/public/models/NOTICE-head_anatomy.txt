@@ -1,0 +1,11 @@
+head_anatomy.glb is a derivative of Ecorche (https://github.com/Charleeh/ecorche), licensed CC BY-SA 4.0.
+Ecorche is based on BodyParts3D, (c) The Database Center for Life Science, CC BY 4.0, and on Z-Anatomy by
+Gauthier Kervyn, CC BY-SA 4.0 (https://www.z-anatomy.com/).
+
+Changes made for FaceStudio: only the skull bones, teeth, nasal cartilages, eyes and the muscles of the face were kept;
+world transforms were baked in; geometry was welded and simplified (meshoptimizer, ratio 0.8) and written with
+EXT_meshopt_compression. At run time the meshes are scaled and moved to sit under the generic MediaPipe canonical face.
+
+This file and anything derived from its meshes is shared under CC BY-SA 4.0:
+https://creativecommons.org/licenses/by-sa/4.0/
+This is an illustration, not a medical device and not a scan of any person.

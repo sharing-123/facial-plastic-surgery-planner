@@ -1,0 +1,504 @@
+[
+ {
+  "id": "ex1",
+  "sample": "sample-1.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Oblique forehead laceration",
+   "id": "Laserasi dahi oblik"
+  },
+  "note": {
+   "en": "A synthetic 27 mm laceration drawn on a public-domain portrait. It lies 32 degrees off the forehead's horizontal lines, an intermediate angle.",
+   "id": "Laserasi sintetis 27 mm yang digambar pada potret domain publik. Letaknya 32 derajat dari garis horizontal dahi, sudut sedang."
+  },
+  "region": {
+   "en": "forehead",
+   "id": "dahi"
+  },
+  "diagnosis": {
+   "en": "Laceration",
+   "id": "Laserasi",
+   "share_percent": 37
+  },
+  "numbers": {
+   "length_mm": 27.5,
+   "angle_to_rstl_deg": 31.7,
+   "rstl_axis_deg": 0,
+   "size_mm": [
+    28.6,
+    6.2
+   ],
+   "depth_mm": {
+    "low": 1.7,
+    "estimate": 3.0,
+    "high": 4.8
+   },
+   "middle_to_lower_third": 0.924,
+   "nasal_index": 97.8,
+   "mirror_asymmetry_mm": 2.1
+  },
+  "techniques": [
+   {
+    "en": "Layered primary closure",
+    "id": "Penutupan primer berlapis"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex1_zones.jpg",
+    "caption": {
+     "en": "Zone atlas and landmarks",
+     "id": "Atlas zona dan landmark"
+    }
+   },
+   {
+    "file": "ex1_rstl.jpg",
+    "caption": {
+     "en": "Proportion grid and skin tension lines",
+     "id": "Grid proporsi dan garis tegangan kulit"
+    }
+   },
+   {
+    "file": "ex1_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex1_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex1_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex1_sheet_en.jpg",
+   "id": "ex1_sheet_id.jpg"
+  }
+ },
+ {
+  "id": "ex2",
+  "sample": "sample-2.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Horizontal forehead laceration, favourable direction",
+   "id": "Laserasi dahi horizontal, arah menguntungkan"
+  },
+  "note": {
+   "en": "A synthetic 34 mm laceration that runs along the forehead lines, so the angle to RSTL is only 14 degrees. The plan keeps closure simple.",
+   "id": "Laserasi sintetis 34 mm yang searah garis dahi, jadi sudut terhadap RSTL hanya 14 derajat. Rencana menjaga penutupan tetap sederhana."
+  },
+  "region": {
+   "en": "forehead",
+   "id": "dahi"
+  },
+  "diagnosis": {
+   "en": "Laceration",
+   "id": "Laserasi",
+   "share_percent": 34
+  },
+  "numbers": {
+   "length_mm": 34.0,
+   "angle_to_rstl_deg": 13.7,
+   "rstl_axis_deg": 0,
+   "size_mm": [
+    35.5,
+    6.9
+   ],
+   "depth_mm": {
+    "low": 1.7,
+    "estimate": 3.0,
+    "high": 4.8
+   },
+   "middle_to_lower_third": 0.959,
+   "nasal_index": 87.1,
+   "mirror_asymmetry_mm": 2.97
+  },
+  "techniques": [
+   {
+    "en": "Layered primary closure",
+    "id": "Penutupan primer berlapis"
+   },
+   {
+    "en": "Undermining and minimal elliptical excision",
+    "id": "Undermining dan eksisi elips minimal"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex2_zones.jpg",
+    "caption": {
+     "en": "Zone atlas and landmarks",
+     "id": "Atlas zona dan landmark"
+    }
+   },
+   {
+    "file": "ex2_rstl.jpg",
+    "caption": {
+     "en": "Proportion grid and skin tension lines",
+     "id": "Grid proporsi dan garis tegangan kulit"
+    }
+   },
+   {
+    "file": "ex2_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex2_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex2_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex2_sheet_en.jpg",
+   "id": "ex2_sheet_id.jpg"
+  }
+ },
+ {
+  "id": "ex3",
+  "sample": "sample-3.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Widened cheek scar across the skin lines",
+   "id": "Parut pipi melebar memotong garis kulit"
+  },
+  "note": {
+   "en": "A synthetic 14 month old scar lying 65 degrees across RSTL. The plan moves from an ellipse to a Z-plasty because an ellipse would be too long.",
+   "id": "Parut sintetis berusia 14 bulan yang memotong RSTL 65 derajat. Rencana beralih dari elips ke Z-plasty karena elips akan terlalu panjang."
+  },
+  "region": {
+   "en": "cheek",
+   "id": "pipi"
+  },
+  "diagnosis": {
+   "en": "Mature linear scar",
+   "id": "Parut linear matang",
+   "share_percent": 68
+  },
+  "numbers": {
+   "length_mm": 29.8,
+   "angle_to_rstl_deg": 64.8,
+   "rstl_axis_deg": 152,
+   "size_mm": [
+    30.6,
+    3.9
+   ],
+   "depth_mm": {
+    "low": 0.7,
+    "estimate": 1.3,
+    "high": 2.0
+   },
+   "middle_to_lower_third": 0.84,
+   "nasal_index": 96.2,
+   "mirror_asymmetry_mm": 1.2
+  },
+  "techniques": [
+   {
+    "en": "Z-plasty",
+    "id": "Z-plasty"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex3_zones.jpg",
+    "caption": {
+     "en": "Zone atlas and landmarks",
+     "id": "Atlas zona dan landmark"
+    }
+   },
+   {
+    "file": "ex3_rstl.jpg",
+    "caption": {
+     "en": "Proportion grid and skin tension lines",
+     "id": "Grid proporsi dan garis tegangan kulit"
+    }
+   },
+   {
+    "file": "ex3_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex3_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex3_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex3_sheet_en.jpg",
+   "id": "ex3_sheet_id.jpg"
+  }
+ },
+ {
+  "id": "ex4",
+  "sample": "sample-2.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Oblique chin laceration",
+   "id": "Laserasi dagu oblik"
+  },
+  "note": {
+   "en": "A synthetic 28 mm laceration on the chin, 36 degrees off the skin lines. Closure is layered and primary, and the plan lists the lip border as a landmark to align first.",
+   "id": "Laserasi sintetis 28 mm di dagu, 36 derajat dari garis kulit. Penutupan berlapis primer, dan rencana menyebut batas bibir sebagai landmark yang disejajarkan lebih dulu."
+  },
+  "region": {
+   "en": "chin",
+   "id": "dagu"
+  },
+  "diagnosis": {
+   "en": "Laceration",
+   "id": "Laserasi",
+   "share_percent": 34
+  },
+  "numbers": {
+   "length_mm": 27.9,
+   "angle_to_rstl_deg": 36.0,
+   "rstl_axis_deg": 0,
+   "size_mm": [
+    33.2,
+    5.7
+   ],
+   "depth_mm": {
+    "low": 2.1,
+    "estimate": 3.8,
+    "high": 6.1
+   },
+   "middle_to_lower_third": 0.959,
+   "nasal_index": 87.1,
+   "mirror_asymmetry_mm": 2.97
+  },
+  "techniques": [
+   {
+    "en": "Layered primary closure",
+    "id": "Penutupan primer berlapis"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex4_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex4_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex4_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex4_sheet_en.jpg",
+   "id": "ex4_sheet_id.jpg"
+  }
+ },
+ {
+  "id": "ex5",
+  "sample": "sample-3.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Vertical forehead scar across the lines",
+   "id": "Parut dahi vertikal memotong garis"
+  },
+  "note": {
+   "en": "A synthetic 19 mm scar standing 72 degrees across the horizontal forehead lines, the worst direction for a scar. Revision by Z-plasty re-aligns part of it with the lines.",
+   "id": "Parut sintetis 19 mm yang berdiri 72 derajat melintang garis horizontal dahi, arah terburuk untuk parut. Revisi dengan Z-plasty menyejajarkan sebagian parut dengan garis."
+  },
+  "region": {
+   "en": "forehead",
+   "id": "dahi"
+  },
+  "diagnosis": {
+   "en": "Mature linear scar",
+   "id": "Parut linear matang",
+   "share_percent": 68
+  },
+  "numbers": {
+   "length_mm": 19.1,
+   "angle_to_rstl_deg": 72.1,
+   "rstl_axis_deg": 0,
+   "size_mm": [
+    21.7,
+    3.2
+   ],
+   "depth_mm": {
+    "low": 0.7,
+    "estimate": 1.3,
+    "high": 2.0
+   },
+   "middle_to_lower_third": 0.84,
+   "nasal_index": 96.2,
+   "mirror_asymmetry_mm": 1.2
+  },
+  "techniques": [
+   {
+    "en": "Z-plasty",
+    "id": "Z-plasty"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex5_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex5_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex5_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex5_sheet_en.jpg",
+   "id": "ex5_sheet_id.jpg"
+  }
+ },
+ {
+  "id": "ex6",
+  "sample": "sample-1.jpg",
+  "synthetic": true,
+  "title": {
+   "en": "Cheek laceration beside the lower eyelid",
+   "id": "Laserasi pipi di samping kelopak bawah"
+  },
+  "note": {
+   "en": "A synthetic 20 mm laceration that starts close to the lower eyelid and runs 73 degrees across the skin lines. The differential share is low because no history was entered, so the plan flags the periorbital structures to check first.",
+   "id": "Laserasi sintetis 20 mm yang mulai dekat kelopak mata bawah dan memotong garis kulit 73 derajat. Porsi diferensial rendah karena riwayat belum diisi, sehingga rencana menandai struktur periorbital untuk diperiksa lebih dulu."
+  },
+  "region": {
+   "en": "lateral cheek below the eye",
+   "id": "pipi lateral di bawah mata"
+  },
+  "diagnosis": {
+   "en": "Laceration",
+   "id": "Laserasi",
+   "share_percent": 19
+  },
+  "numbers": {
+   "length_mm": 20.5,
+   "angle_to_rstl_deg": 72.8,
+   "rstl_axis_deg": 32.4,
+   "size_mm": [
+    24.6,
+    4.2
+   ],
+   "depth_mm": {
+    "low": 2.6,
+    "estimate": 4.8,
+    "high": 7.7
+   },
+   "middle_to_lower_third": 0.924,
+   "nasal_index": 97.8,
+   "mirror_asymmetry_mm": 2.1
+  },
+  "techniques": [
+   {
+    "en": "Layered primary closure",
+    "id": "Penutupan primer berlapis"
+   }
+  ],
+  "setting": {
+   "en": "Outpatient clinic",
+   "id": "Poli rawat jalan"
+  },
+  "images": [
+   {
+    "file": "ex6_measured.jpg",
+    "caption": {
+     "en": "1. Measured",
+     "id": "1. Terukur"
+    }
+   },
+   {
+    "file": "ex6_marking.jpg",
+    "caption": {
+     "en": "2. Marking",
+     "id": "2. Marking"
+    }
+   },
+   {
+    "file": "ex6_result.jpg",
+    "caption": {
+     "en": "3. Expected appearance (illustration)",
+     "id": "3. Perkiraan hasil (ilustrasi)"
+    }
+   }
+  ],
+  "sheet": {
+   "en": "ex6_sheet_en.jpg",
+   "id": "ex6_sheet_id.jpg"
+  }
+ }
+]

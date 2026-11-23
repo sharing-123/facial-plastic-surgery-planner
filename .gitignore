@@ -1,28 +1,9 @@
-# models are downloaded by scripts/download_models.py
-models/
-face_landmarker.task
-# outputs and local data: NEVER commit patient photos or exports
-app_output/
-demo_output/
-*.jpg
-*.jpeg
-*.png
-*.heic
-!deploy/vercel/public/*.png
+node_modules/
+dist/
 __pycache__/
 *.pyc
-.claude/
-node_modules/
-.vercel/
-deploy/vercel/tests/golden.json
-
-# assets used by the README are tracked
-!assets/banner.webp
-!assets/figure_marking.jpg
-!assets/gallery/*.jpg
-
-# Python package build artifacts
-/build/
-/dist/
-*.egg-info/
-.pytest_cache/
+.venv/
+*.db
+models_private/
+.env
+tools/bin/

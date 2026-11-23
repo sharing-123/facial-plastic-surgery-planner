@@ -17,9 +17,10 @@ authors:
   - family-names: Afrilia
     given-names: Cindy Rizky
     affiliation: Faculty of Medicine, Universitas Kristen Krida Wacana, Jakarta, Indonesia
-# Add the identifiers below after the records exist.
-# identifiers:
-#   - type: doi
-#     value: OSF DOI to be assigned
-#   - type: doi
-#     value: Zenodo DOI to be assigned
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/ESW47
+    description: OSF registration
+  - type: doi
+    value: 10.5281/zenodo.24412867
+    description: Zenodo archive

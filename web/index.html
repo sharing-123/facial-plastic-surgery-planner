@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>FaceStudio</title>
+  <meta name="description" content="Facial analysis and surgical planning from one photograph. Landmarks, proportions, relaxed skin tension lines and plans, processed on your device." />
+  <meta name="theme-color" content="#050506" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307080a'/%3E%3Cellipse cx='16' cy='16.5' rx='7' ry='9.5' fill='none' stroke='%235fe8c8' stroke-width='1.6'/%3E%3Cpath d='M16 7v19' stroke='%235fe8c8' stroke-width='1' stroke-dasharray='1.5 2'/%3E%3C/svg%3E" />
+</head>
+<body data-view="landing">
+  <div class="veil" id="veil"><span>FaceStudio</span></div>
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div class="hud" id="hud" aria-hidden="true">
+    <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br bb"></i>
+    <div class="hud-box">
+      <div class="hud-row"><span data-i18n="hud.stage">Stage</span><b id="hud-stage">-</b></div>
+      <div class="hud-row"><span data-i18n="hud.scan">Scan</span><b id="hud-pct">0%</b></div>
+      <div class="hud-bar"><i id="hud-bar"></i></div>
+      <div class="hud-row"><span data-i18n="hud.points">Surface samples</span><b id="hud-pts">0</b></div>
+      <div class="hud-row"><span data-i18n="hud.lm">Landmarks</span><b>478</b></div>
+    </div>
+  </div>
+
+  <header class="top">
+    <a class="brand" href="#/" aria-label="FaceStudio">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><ellipse cx="16" cy="16.5" rx="7" ry="9.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 5.5v22" stroke="currentColor" stroke-width="1" stroke-dasharray="1.6 2.2"/><path d="M5 12.5h22M5 21h22" stroke="currentColor" stroke-width=".8" opacity=".55"/></svg>
+      <span>FaceStudio</span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="#method" data-i18n="nav.method">Method</a>
+      <a href="#limits" data-i18n="nav.limits">Limits</a>
+      <a href="#/studio" class="nav-cta" data-i18n="nav.studio">Studio</a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <span aria-hidden="true">|</span>
+        <button type="button" data-lang="id" aria-pressed="false">ID</button>
+      </div>
+    </nav>
+  </header>
+
+  <div id="landing">
+    <main id="story">
+      <section class="chapter c-hero" id="hero" data-chapter="0">
+        <div class="hero-copy">
+          <h1 data-i18n-html="hero.title">A face, <em>measured</em>.</h1>
+        </div>
+        <p class="hero-sub" data-i18n="hero.sub">Upload one photograph. FaceStudio places 478 landmarks, builds the surface and draws the plan on it.</p>
+        <a class="cue" href="#landmarks"><span data-i18n="hero.cue">Scroll to begin</span><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+        <p class="hero-note" data-i18n="hero.note">For clinicians. Nothing is uploaded: the photograph is processed on this device.</p>
+      </section>
+
+      <section class="chapter side-left xtall" id="capture" data-chapter="1">
+        <div class="copy">
+          <h2 data-i18n-html="c1a.title">The face, <em>sampled</em> as points.</h2>
+          <p data-i18n="c1a.body">A scanner returns a cloud of surface points. Scroll to sweep the laser down the face and watch the cloud settle onto the skin.</p>
+          <p class="fine" data-i18n="c1a.note">Illustration. FaceStudio itself reads a photograph, not a depth scan.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-right xtall" id="rebuild" data-chapter="2">
+        <div class="copy">
+          <h2 data-i18n-html="c1b.title">Points become a <em>surface</em>.</h2>
+          <p data-i18n="c1b.body">Landmarks are triangulated into a mesh, smoothed, and textured with your photograph. Here the mesh is built from the top down, behind the laser.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-left" id="landmarks" data-chapter="3">
+        <div class="copy">
+          <h2 data-i18n-html="c1.title">478 points from <em>one</em> photograph.</h2>
+          <p data-i18n="c1.body">A face-landmark model finds the lid margins, lip borders, nasal rims and jaw outline. It runs in your browser, so the photograph never leaves the device.</p>
+          <p class="fine" data-i18n="c1.note">The mesh on this page is MediaPipe's generic canonical face. It is not a patient.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-right" id="proportions" data-chapter="4">
+        <div class="copy">
+          <h2 data-i18n-html="c2.title">Proportions against a <em>cited</em> reference.</h2>
+          <p data-i18n="c2.body">Thirds and fifths are drawn on the surface itself. In the studio, colour shows distance from the reference. It is never a beauty score.</p>
+          <p class="fine" data-i18n="c2.note">Heights shown here belong to the generic canonical mesh.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-left" id="zones" data-chapter="5">
+        <div class="copy">
+          <h2 data-i18n-html="c3.title">Thirty-four <em>zones</em>, none left silent.</h2>
+          <p data-i18n="c3.body">Every point inside the face oval belongs to exactly one zone. A module that skips a zone says so, instead of reporting it as normal.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-right" id="rstl" data-chapter="6">
+        <div class="copy">
+          <h2 data-i18n-html="c4.title">Lines the scalpel should <em>follow</em>.</h2>
+          <p data-i18n="c4.body">Relaxed skin tension lines are drawn from the landmarks. The field is a coarse, rule-based approximation. A clinician can override the angle and every number is recalculated.</p>
+        </div>
+      </section>
+
+      <section class="chapter side-left xtall" id="layers" data-chapter="7">
+        <div class="copy">
+          <h2 data-i18n-html="c5.title">Four layers, <em>one</em> face.</h2>
+          <p data-i18n="c5.body">Skin, fat and SMAS, muscle, bone. The layers are schematic and scale to the landmarks. They are an illustration, not a scan.</p>
+          <ol class="steps" aria-label="Layers">
+            <li data-step="0" data-i18n="c5.l0">Skin</li>
+            <li data-step="1" data-i18n="c5.l1">Fat and SMAS</li>
+            <li data-step="2" data-i18n="c5.l2">Muscle</li>
+            <li data-step="3" data-i18n="c5.l3">Bone</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="chapter side-right" id="plan" data-chapter="8">
+        <div class="copy">
+          <h2 data-i18n-html="c6.title">A plan you can <em>read</em>.</h2>
+          <p data-i18n="c6.body">Each plan is three pictures: what was measured, what is marked, and what to expect. The numbers, steps and reasons sit beside them.</p>
+        </div>
+      </section>
+
+      <section class="chapter c-studio" id="studio" data-chapter="9">
+        <div class="studio-copy">
+          <h2 data-i18n-html="c7.title">Start with a <em>photograph</em>.</h2>
+          <a class="cta" href="#/studio"><span data-i18n="c7.cta">Open the studio</span><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        </div>
+        <div class="limits" id="limits">
+          <h3 data-i18n="lim.title">What this cannot do</h3>
+          <ul>
+            <li data-i18n="lim.1">Scale without a reference object is an estimate, usually within a third of the true size.</li>
+            <li data-i18n="lim.2">Depth cannot be measured from a photograph. Any depth in cm is a range, not a reading.</li>
+            <li data-i18n="lim.3">A photograph cannot exclude malignancy. Suspicious lesions need a biopsy first.</li>
+            <li data-i18n="lim.4">No beauty score and no verdict on whether surgery is needed.</li>
+          </ul>
+        </div>
+        <footer class="foot">
+          <span data-i18n="foot.l">FaceStudio is decision support for clinicians. It does not diagnose.</span>
+          <span id="method" data-i18n="foot.r">Landmarks by MediaPipe Face Landmarker. Everything else is computed in your browser.</span>
+          <span class="credit" data-i18n="foot.credit">Anatomy meshes: Ecorche by Charleeh (CC BY-SA 4.0), from BodyParts3D (CC BY) and Z-Anatomy (CC BY-SA). Sample portraits are public domain (Wikimedia Commons).</span>
+        </footer>
+      </section>
+    </main>
+    <div class="tags" id="tags" aria-hidden="true"></div>
+  </div>
+
+  <div id="studio-root" hidden></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

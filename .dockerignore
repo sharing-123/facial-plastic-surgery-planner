@@ -1,0 +1,9 @@
+**/node_modules
+web/dist
+**/__pycache__
+**/*.db
+.git
+fixtures
+scripts
+tools
+server/models/*.onnx

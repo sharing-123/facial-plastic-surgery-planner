@@ -1,7 +1,0 @@
-{
-  "name": "marking-luka-parut-browser",
-  "private": true,
-  "version": "0.1.0",
-  "description": "Client-side wound and scar marking planner. All computation runs in the browser; no photo is uploaded.",
-  "scripts": { "test": "node --test tests/parity.test.mjs" }
-}

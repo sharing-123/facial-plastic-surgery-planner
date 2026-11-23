@@ -1,123 +1,82 @@
 <p align="center">
-  <img src="assets/banner.webp" width="100%" alt="Animated rotating three dimensional facial mesh with a scan plane, a wound centre line, numbered suture marks and a millimetre counter">
+  <img src="assets/banner.webp" width="100%" alt="Rotating three dimensional facial mesh with a scan plane and numbered suture marks">
 </p>
 
-<h1 align="center">Quantitative Marking and Suture Planning for Facial Wounds and Scars from Single Photographs: A Bioinformatic and Deep Learning Study</h1>
+<h1 align="center">FaceStudio</h1>
 
 <p align="center">
+  Facial analysis and surgical planning from one photograph: a WebGL landing world, a photo workbench and a FastAPI backend.<br>
   Muhammad Allam Rafi<sup>1</sup> and Cindy Rizky Afrilia<sup>2</sup><br>
-  <sup>1</sup>Faculty of Medicine, Universitas Indonesia, Jakarta, Indonesia<br>
-  <sup>2</sup>Faculty of Medicine, Universitas Kristen Krida Wacana, Jakarta, Indonesia
+  <sup>1</sup>Faculty of Medicine, Universitas Indonesia &nbsp;&middot;&nbsp; <sup>2</sup>Faculty of Medicine, Universitas Kristen Krida Wacana
 </p>
 
 <p align="center">
+  <a href="https://doi.org/10.17605/OSF.IO/ESW47"><img src="https://img.shields.io/badge/OSF-10.17605%2FOSF.IO%2FESW47-1f3a5f?style=flat-square" alt="OSF registration"></a>
+  <a href="https://doi.org/10.5281/zenodo.24412867"><img src="https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.24412867-1f3a5f?style=flat-square" alt="Zenodo archive"></a>
   <img src="https://img.shields.io/badge/status-research%20prototype-1f3a5f?style=flat-square" alt="Research prototype">
-  <img src="https://img.shields.io/badge/python-3.12-1f3a5f?style=flat-square" alt="Python 3.12">
-  <img src="https://img.shields.io/badge/automated%20tests-90%2B-1f3a5f?style=flat-square" alt="More than 90 automated tests">
-  <img src="https://img.shields.io/badge/FHIR-R4B%20validated-1f3a5f?style=flat-square" alt="FHIR R4B validated">
 </p>
 
-<p align="center">
-  OSF DOI &nbsp;&nbsp;&nbsp;&nbsp;______________________________________________<br><br>
-  Zenodo DOI &nbsp;&nbsp;______________________________________________
-</p>
+Decision support for clinicians. It is not a diagnosis, gives no beauty score and no verdict on whether surgery is needed.
 
-## Abstract
+* **OSF registration:** https://doi.org/10.17605/OSF.IO/ESW47
+* **Zenodo archive:** https://doi.org/10.5281/zenodo.24412867
+* The first Python research package (v0.1.0, the code behind the OSF and Zenodo records) is kept in this repository's history under the tag
+  [`python-package-v0.1.0`](https://github.com/sharing-123/facial-plastic-surgery-planner/tree/python-package-v0.1.0).
 
-Facial wound and scar repair depends heavily on the surgeon's eye. Incision direction relative to the relaxed skin tension lines, suture spacing and order, and the choice between plasty techniques are rarely recorded as measurements, which limits teaching, audit and comparison between operators. We built an open source research prototype that turns a single photograph into a reproducible marking plan. Facial landmarks give a millimetre scale and a 34 zone atlas, a promptable segmentation model outlines the lesion, and a rule based planner drawn from textbook principles proposes closure techniques with numbered suture guides and region specific warnings. A bioinformatics layer codes findings in ICD 10 and Human Phenotype Ontology terms, exports FHIR R4B bundles and runs Reactome pathway enrichment with Benjamini Hochberg correction. More than 90 automated tests pass. A JavaScript port reproduced the Python planner in 120 of 120 randomised scenarios once two discrepancies were fixed. On a public photograph of a facial keloid, contours stayed stable under prompt perturbation (pairwise intersection over union 0.986). This shows repeatability and not accuracy. Comparison with surgeons, clinical wounds and the skin tension model has not yet been done, and the tool is not intended for clinical use.
+![Marking triptych: segmented contour, numbered sutures, schematic closure](assets/figure_marking.jpg)
 
-## Introduction
+## What is in it
 
-When a surgeon closes a facial laceration or revises a scar, most of the important choices are made by eye. Where the incision should lie relative to the relaxed skin tension lines, how far apart the stitches should be, where to place the first one, and whether a fusiform excision, a Z plasty or a W plasty is the better option all come from training and pattern recognition. The record of that reasoning is usually a photograph and a line of text, so it is hard to teach, to compare between operators or to audit afterwards.
+* **web/**: Vite + TypeScript + Three.js + GSAP + Lenis. MediaPipe Face Landmarker (478 points) runs in the browser, so photographs
+  never leave the device. Clinical rules are TypeScript ports of the Python prototype (RSTL, 34-zone atlas, wound geometry,
+  markings, planner, quality gate, proportions). The scroll world and its motion are described in
+  [MOTION-CATALOG-1.md](MOTION-CATALOG-1.md).
+* **server/**: FastAPI, saved cases per browser workspace (SQLite, or PostgreSQL via `DATABASE_URL`), optional MobileSAM
+  segmentation (503 when the weights are absent), an example gallery at `/api/examples`, health check, serves `web/dist`.
+* **tools/**, **scripts/**: asset preparation (head anatomy cut from Ecorche, canonical face export, example sheets, fixtures).
 
-Segmentation models and facial landmark detectors now run comfortably on an ordinary laptop, which makes it practical to attach a measurement and a stated rationale to every mark. This repository pairs those models with an explicit rule set taken from standard surgical teaching, and adds a bioinformatics interface so that findings can be coded, exchanged and linked to biological knowledge for research. It is a research prototype. It is meant to support a surgeon's judgement and not to replace it, and it has not been tested on patients.
-
-## Methods
-
-Images are processed on the local machine. A face landmarker provides 478 points, from which the pixel to millimetre scale is derived using an iris diameter of 11.7 mm, which carries an error of about five percent, or from a manual calibration when a ruler is visible. A quality gate refuses to produce numbers when the head is turned, the eyes are closed, the image is blurred or no face is found. A facial atlas of 34 zones covers the whole oval of the face, and each analysis module reports every zone as analysed, of low confidence or not analysed together with the reason, so that no region is skipped silently.
-
-For a wound or scar the clinician draws a rough outline. A promptable segmentation model (MobileSAM in ONNX form) snaps the outline to the tissue edge, and a consensus over seven perturbed prompts gives the final contour and a stability score. The centre line follows the principal axis of the contour. Lesions with an elongation below 2.5 or a solidity below 0.6 are treated as nonlinear, and no suture line is drawn for them, which prevents a suture guide from being laid across a lobulated keloid.
-
-The planner compares the wound axis with the direction of the skin tension lines, which comes from a coarse rule based field that the clinician can override. An angle under 30 degrees is called favourable and one above 60 degrees unfavourable. It ranks primary layered closure, fusiform excision at a length to width ratio of 3.5, Z plasty at 30, 45 or 60 degrees with theoretical length gains of 25, 50 and 75 percent, serial Z plasty for long scars with limbs of about 15 mm, W plasty with 6 mm equilateral teeth and a geometric broken line. An ellipse is not offered when it would exceed twice the wound length. Skin sutures are laid at a 4 mm spacing with the bites 3 mm outside the wound edge and numbered in halving order, beginning at the middle or at a critical landmark such as the vermilion border. Warnings depend on the region, for example the parotid duct and facial nerve branches for a deep lateral cheek wound, the canalicular system near the medial canthus and three layer closure for a through and through lip wound. A schematic picture of the closed wound is drawn and is labelled as an illustration and not a prediction.
-
-The bioinformatics layer suggests ICD 10 and Human Phenotype Ontology codes, with the ontology identifiers checked against the official HPO service. It writes FHIR R4B bundles that contain Observation resources with UCUM units and a Condition that is marked unconfirmed, and it validates them with the reference models before export. Over representation analysis uses a one sided hypergeometric test against the Reactome 2022 gene sets, with Benjamini Hochberg correction applied across every eligible set. A dated snapshot of gene disease associations from Open Targets is included for keloid, cleft lip, Bell palsy and acne vulgaris. A search for hypertrophic scar resolved to an unrelated cardiac disease and was therefore dropped, and every resolved disease name is now checked before it is stored.
-
-A browser version for static hosting was written in JavaScript. It performs the planning and drawing entirely on the device and was compared with the Python implementation on 120 randomised scenarios.
-
-A staged validation protocol is provided in the docs folder. Phase 1 recruits 45 healthy adults, 15 for each of three skin tone groups, for repeatability and for agreement with caliper measurements. The sample size follows the precision of the intraclass correlation coefficient (31 participants for an expected value of 0.85 with a confidence interval of width 0.20) and the limits of agreement (35 participants for a half width of 0.6 mm when the standard deviation of differences is 1.0 mm). Phase 2 compares the software with trained raters for palsy, cleft lip, wounds, acne and wrinkles, Phase 3 follows 30 patients before and after surgery, and the surgeon comparison tool in the application records contour overlap, the angle between skin tension lines, matched suture distances and agreement of the chosen technique, optionally with the tool output hidden until the surgeon has drawn.
-
-## Results
-
-All automated tests passed, which amounts to more than 90 tests across planning geometry, wound analysis, wrinkle and acne detection, surgeon agreement metrics, bioinformatics and input robustness, together with four parity tests in Node. The parity tests compared the planner, the suture layout, the W plasty lines and the serial Z plasty between the two implementations, and they exposed two real inconsistencies in the Python code, one in the conditions for a note about long ellipses and one in the rounding of suture counts, which were corrected. Deliberately hostile input such as coincident points, polygons the size of the image, coordinates outside the picture and malformed prompts produced only controlled rejections.
-
-On a wound simulation mannequin, a rough outline of 9 points produced a contour from which the centre line measured 52.1 mm, and the planner proposed 13 skin sutures at 4 mm and 7 deep sutures. On a public photograph of a facial keloid the contour was reproducible when the rough outline was scaled and jittered, with a mean pairwise intersection over union of 0.986 for single runs and 0.994 for the consensus. The keloid was recognised as a nonlinear lesion, no suture line was drawn and a nonsurgical first step was proposed. These figures describe how consistent repeated runs are. They do not show that the contour is correct.
-
-A fibrosis signature of 23 collagen, growth factor and matrix genes recovered extracellular matrix organisation and collagen pathways with a false discovery rate below one in a million. Random lists of 25 and 100 genes drawn from the library produced at least one significant pathway in 0.7 and 0.3 percent of 300 draws each. An earlier version that removed pathways by observed overlap before applying the correction inflated this rate to 53 percent, which is why every eligible pathway now enters the correction. The exported FHIR bundles passed validation against the R4B models.
-
-<p align="center">
-  <img src="assets/figure_marking.jpg" width="86%" alt="Three panels showing the segmented wound contour, the numbered suture marking and a schematic of the closed wound on a wound simulation mannequin">
-</p>
-<p align="center"><sub>Example output on a wound simulation mannequin. Left, the contour found by the segmentation model. Centre, the suture marking with numbers in halving order. Right, a schematic of the closed wound, shown as an illustration and not as a predicted outcome.</sub></p>
-
-## Gallery
-
-Selected outputs from development and testing, each showing a different kind of annotation and none repeating another. Photographs were taken from Wikimedia Commons under public domain, CC BY or CC BY SA terms, and credit belongs to the original file pages. All plans are decision support examples and have not been checked by surgeons.
-
-<table>
-  <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/palsy_symmetry.jpg" width="100%" alt="Facial palsy portrait with proportions and symmetry flags against cited references."><br><sub>Facial palsy portrait with proportions and symmetry flags against cited references.</sub></td>
-    <td width="50%" valign="top"><img src="assets/gallery/contour_sam_vs_grabcut.jpg" width="100%" alt="Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line."><br><sub>Wound contour from the segmentation model in green and from the fallback method in magenta, both started from the same rough orange line.</sub></td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/keloid_nonlinear.jpg" width="100%" alt="Facial keloid recognised as a nonlinear lesion, so no suture line is drawn."><br><sub>Facial keloid recognised as a nonlinear lesion, so no suture line is drawn.</sub></td>
-    <td width="50%" valign="top"><img src="assets/gallery/wrinkle_map.jpg" width="100%" alt="Wrinkle map by zone on darker skin, with hair removed and unanalysed zones marked."><br><sub>Wrinkle map by zone on darker skin, with hair removed and unanalysed zones marked.</sub></td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top"><img src="assets/gallery/acne_candidates.jpg" width="100%" alt="Colour based acne lesion candidates, to be confirmed by the clinician."><br><sub>Colour based acne lesion candidates, to be confirmed by the clinician.</sub></td>
-    <td width="50%" valign="top"><img src="assets/gallery/zone_atlas.jpg" width="100%" alt="The 34 zone atlas that covers the whole facial oval with no gaps."><br><sub>The 34 zone atlas that covers the whole facial oval with no gaps.</sub></td>
-  </tr>
-</table>
-
-## Limitations
-
-The skin tension field is a coarse approximation that has not been compared with a published atlas, and it should be overridden by the surgeon when it disagrees with clinical judgement. Measurements come from a single two dimensional photograph, so curved surfaces distort lengths, and the scale depends on an iris assumption unless a ruler is used. The segmentation model was trained on everyday objects, and its contours on clinical wounds have not been compared with manual outlines. The detector for red spots is based on colour alone and cannot separate acne from other red marks, since normal faces returned between 0 and 28 candidate spots while two photographs with acne returned 35 and 45. The wrinkle detector was tuned on synthetic skin and examined on a small number of photographs. The planner follows textbook rules, and it cannot see depth, blood supply, contamination, nerve injury or bone. No part of the framework has been tested against surgeons or on patients, and it must not be used to make clinical decisions.
-
-## Reproducibility and use
-
-```bash
-pip install -r requirements.txt
-python scripts/download_models.py
-python app/server.py
+```powershell
+cd web; npm ci; npm run build; npm test; cd ..
+pip install -r server/requirements.txt; python -m pytest server/tests -q
+python server/run.py        # http://127.0.0.1:8780
+docker compose up --build   # with PostgreSQL, http://127.0.0.1:8781
 ```
 
-The application then opens at http://127.0.0.1:8791 and listens only on the local machine. The Python tests are run with the commands below, and the browser version is checked against the Python planner with Node.
+See `deploy/DEPLOY.md` for Docker, Hugging Face Spaces and licences. Weights and datasets with non-commercial terms are never committed.
 
-```bash
-python test_surgical_planner.py
-python test_bioinfo.py
-python test_surgeon_compare.py
-python deploy/vercel/tests/make_golden.py
-node --test deploy/vercel/tests/parity.test.mjs
-```
+## Example outputs
 
-The folder deploy/vercel holds the browser version, which can be hosted as a static site by setting the root directory of the project to deploy/vercel. The full Python application is not suited to serverless hosting because of its size and because patient photographs should not leave the clinic.
+Each sheet shows the measured lesion, the marking with numbered sutures and an illustration of the expected appearance, with size, type,
+angle to the skin tension lines, plan and a palsy-or-cosmetic screening note. The lesions are synthetic, drawn on public-domain portraits.
 
-## Availability
+![Example: oblique forehead laceration](server/examples/ex1_sheet_en.jpg)
+![Example: vertical forehead scar across the lines](server/examples/ex5_sheet_en.jpg)
 
-The code is available at https://github.com/sharing-123/facial-plastic-surgery-planner. A licence has not yet been chosen, so all rights are reserved until one is added. Photographs used during development came from public collections and are not redistributed. Persistent identifiers will be added to this page once the OSF project and the Zenodo record have been created. Third party models and data are listed in NOTICE.md.
+Outputs of the earlier Python prototype:
 
-## Citation
+| | |
+|---|---|
+| ![Facial palsy symmetry findings](assets/gallery/palsy_symmetry.jpg) | ![Zone atlas](assets/gallery/zone_atlas.jpg) |
+| ![Keloid, nonlinear](assets/gallery/keloid_nonlinear.jpg) | ![Wrinkle map](assets/gallery/wrinkle_map.jpg) |
 
-```bibtex
-@software{rafi_afrilia_2026_facial_planner,
-  author  = {Rafi, Muhammad Allam and Afrilia, Cindy Rizky},
-  title   = {Quantitative Marking and Suture Planning for Facial Wounds and Scars from Single Photographs: A Bioinformatic and Deep Learning Study},
-  year    = {2026},
-  url     = {https://github.com/sharing-123/facial-plastic-surgery-planner},
-  note    = {Research prototype. OSF DOI and Zenodo DOI to be assigned}
-}
-```
+## Segmentation results
 
-## Python package
+Lesion segmentation was evaluated earlier on the Python prototype. These are the reported figures of that run, not re-run for this release.
 
-See the [Python installation and integration guide](docs/PYPI_README.md) for the importable API, examples, tests and development instructions.
+| Model | Accuracy | Precision | Recall | F1 | Dice |
+|---|---|---|---|---|---|
+| New model (U-Net with the outline as input) | 0.969 | 0.948 | 0.948 | 0.948 | 0.943 (95% CI 0.941 to 0.946) |
+| Rough outline only | 0.917 | 0.807 | 0.952 | 0.873 | |
+| MobileSAM (previous version) | 0.830 | 0.647 | 0.955 | 0.771 | |
+
+The in-browser studio outlines lesions with its own region growing, and the optional server route uses MobileSAM when its weights are installed. The U-Net is not part of this release.
+
+## Honest limits
+Scale without a reference object is an estimate; depth cannot be measured from a photograph (the app shows a range); a photograph
+cannot exclude malignancy; the RSTL field is a coarse rule-based approximation; the layered anatomy is an illustration fitted to
+the landmarks, not a scan; the differential and plan are rule-based and have not been validated against clinicians.
+
+## Licence and third-party material
+
+Code: MIT (see `LICENSE`). Third-party models, the CC BY-SA head anatomy and the public-domain sample portraits are listed in
+[NOTICE.md](NOTICE.md).

@@ -1,0 +1,890 @@
+{
+ "bbox": {
+  "min": [
+   -0.07670000195503235,
+   1.4996999502182007,
+   -0.09730000048875809
+  ],
+  "max": [
+   0.07670000195503235,
+   1.714400053024292,
+   0.1290999948978424
+  ]
+ },
+ "triangles": 148032,
+ "structures": [
+  {
+   "name": "Ethmoid",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA52740",
+   "source": "BodyParts3D",
+   "tri": 6204
+  },
+  {
+   "name": "Frontal bone",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA52734",
+   "source": "BodyParts3D",
+   "tri": 5794
+  },
+  {
+   "name": "Left cornea",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA58240",
+   "source": "BodyParts3D",
+   "tri": 694
+  },
+  {
+   "name": "Left inferior nasal concha",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA54738",
+   "source": "BodyParts3D",
+   "tri": 210
+  },
+  {
+   "name": "Left lacrimal bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA53646",
+   "source": "BodyParts3D",
+   "tri": 194
+  },
+  {
+   "name": "Left lateral nasal cartilage",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA59513",
+   "source": "BodyParts3D",
+   "tri": 148
+  },
+  {
+   "name": "Left lower central secondary incisor tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA57143",
+   "source": "BodyParts3D",
+   "tri": 274
+  },
+  {
+   "name": "Left lower first secondary molar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55704",
+   "source": "BodyParts3D",
+   "tri": 528
+  },
+  {
+   "name": "Left lower first secondary premolar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55693",
+   "source": "BodyParts3D",
+   "tri": 352
+  },
+  {
+   "name": "Left lower lateral secondary incisor tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA57141",
+   "source": "BodyParts3D",
+   "tri": 288
+  },
+  {
+   "name": "Left lower second secondary molar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55703",
+   "source": "BodyParts3D",
+   "tri": 484
+  },
+  {
+   "name": "Left lower second secondary premolar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55692",
+   "source": "BodyParts3D",
+   "tri": 336
+  },
+  {
+   "name": "Left lower secondary canine tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55687",
+   "source": "BodyParts3D",
+   "tri": 354
+  },
+  {
+   "name": "Left maxilla",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA53650",
+   "source": "BodyParts3D",
+   "tri": 2078
+  },
+  {
+   "name": "Left nasal bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA53648",
+   "source": "BodyParts3D",
+   "tri": 174
+  },
+  {
+   "name": "Left palatine bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA53656",
+   "source": "BodyParts3D",
+   "tri": 600
+  },
+  {
+   "name": "Left parietal bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA52789",
+   "source": "BodyParts3D",
+   "tri": 5254
+  },
+  {
+   "name": "Left sclera",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA58272",
+   "source": "BodyParts3D",
+   "tri": 1974
+  },
+  {
+   "name": "Left temporal bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA52739",
+   "source": "BodyParts3D",
+   "tri": 1862
+  },
+  {
+   "name": "Left upper central secondary incisor tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55682",
+   "source": "BodyParts3D",
+   "tri": 384
+  },
+  {
+   "name": "Left upper first secondary molar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55699",
+   "source": "BodyParts3D",
+   "tri": 646
+  },
+  {
+   "name": "Left upper first secondary premolar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55690",
+   "source": "BodyParts3D",
+   "tri": 482
+  },
+  {
+   "name": "Left upper lateral secondary incisor tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55683",
+   "source": "BodyParts3D",
+   "tri": 412
+  },
+  {
+   "name": "Left upper second secondary molar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55700",
+   "source": "BodyParts3D",
+   "tri": 554
+  },
+  {
+   "name": "Left upper second secondary premolar tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55691",
+   "source": "BodyParts3D",
+   "tri": 438
+  },
+  {
+   "name": "Left upper secondary canine tooth",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA55799",
+   "source": "BodyParts3D",
+   "tri": 416
+  },
+  {
+   "name": "Left zygomatic bone",
+   "kind": "bone",
+   "side": "left",
+   "layer": "skeleton",
+   "fma": "FMA52893",
+   "source": "BodyParts3D",
+   "tri": 570
+  },
+  {
+   "name": "Mandible",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA52748",
+   "source": "BodyParts3D",
+   "tri": 2226
+  },
+  {
+   "name": "Occipital bone",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA52735",
+   "source": "BodyParts3D",
+   "tri": 4968
+  },
+  {
+   "name": "Right cornea",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA58239",
+   "source": "BodyParts3D",
+   "tri": 696
+  },
+  {
+   "name": "Right inferior nasal concha",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA54737",
+   "source": "BodyParts3D",
+   "tri": 224
+  },
+  {
+   "name": "Right lacrimal bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA53645",
+   "source": "BodyParts3D",
+   "tri": 202
+  },
+  {
+   "name": "Right lateral nasal cartilage",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA59512",
+   "source": "BodyParts3D",
+   "tri": 166
+  },
+  {
+   "name": "Right lower central secondary incisor tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA57142",
+   "source": "BodyParts3D",
+   "tri": 276
+  },
+  {
+   "name": "Right lower first secondary molar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55705",
+   "source": "BodyParts3D",
+   "tri": 528
+  },
+  {
+   "name": "Right lower first secondary premolar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55694",
+   "source": "BodyParts3D",
+   "tri": 354
+  },
+  {
+   "name": "Right lower lateral secondary incisor tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA57140",
+   "source": "BodyParts3D",
+   "tri": 286
+  },
+  {
+   "name": "Right lower second secondary molar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55706",
+   "source": "BodyParts3D",
+   "tri": 486
+  },
+  {
+   "name": "Right lower second secondary premolar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55695",
+   "source": "BodyParts3D",
+   "tri": 336
+  },
+  {
+   "name": "Right lower secondary canine tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55686",
+   "source": "BodyParts3D",
+   "tri": 350
+  },
+  {
+   "name": "Right maxilla",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA53649",
+   "source": "BodyParts3D",
+   "tri": 2128
+  },
+  {
+   "name": "Right nasal bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA53647",
+   "source": "BodyParts3D",
+   "tri": 166
+  },
+  {
+   "name": "Right palatine bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA53655",
+   "source": "BodyParts3D",
+   "tri": 616
+  },
+  {
+   "name": "Right parietal bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA52788",
+   "source": "BodyParts3D",
+   "tri": 5178
+  },
+  {
+   "name": "Right sclera",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA58271",
+   "source": "BodyParts3D",
+   "tri": 1972
+  },
+  {
+   "name": "Right temporal bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA52738",
+   "source": "BodyParts3D",
+   "tri": 1900
+  },
+  {
+   "name": "Right upper central secondary incisor tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55681",
+   "source": "BodyParts3D",
+   "tri": 382
+  },
+  {
+   "name": "Right upper first secondary molar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55698",
+   "source": "BodyParts3D",
+   "tri": 646
+  },
+  {
+   "name": "Right upper first secondary premolar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55689",
+   "source": "BodyParts3D",
+   "tri": 482
+  },
+  {
+   "name": "Right upper lateral secondary incisor tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55680",
+   "source": "BodyParts3D",
+   "tri": 410
+  },
+  {
+   "name": "Right upper second secondary molar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55697",
+   "source": "BodyParts3D",
+   "tri": 552
+  },
+  {
+   "name": "Right upper second secondary premolar tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55688",
+   "source": "BodyParts3D",
+   "tri": 438
+  },
+  {
+   "name": "Right upper secondary canine tooth",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA55798",
+   "source": "BodyParts3D",
+   "tri": 416
+  },
+  {
+   "name": "Right zygomatic bone",
+   "kind": "bone",
+   "side": "right",
+   "layer": "skeleton",
+   "fma": "FMA52892",
+   "source": "BodyParts3D",
+   "tri": 620
+  },
+  {
+   "name": "Septal nasal cartilage",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA59503",
+   "source": "BodyParts3D",
+   "tri": 144
+  },
+  {
+   "name": "Sphenoid bone",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA52736",
+   "source": "BodyParts3D",
+   "tri": 2986
+  },
+  {
+   "name": "Vomer",
+   "kind": "bone",
+   "side": "midline",
+   "layer": "skeleton",
+   "fma": "FMA9710",
+   "source": "BodyParts3D",
+   "tri": 1962
+  },
+  {
+   "name": "Left corrugator supercilii",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 554
+  },
+  {
+   "name": "Left deep part of masseter",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1914
+  },
+  {
+   "name": "Left inferior head of lateral pterygoid",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 646
+  },
+  {
+   "name": "Left medial pterygoid",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 982
+  },
+  {
+   "name": "Left superior head of lateral pterygoid",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 452
+  },
+  {
+   "name": "Right corrugator supercilii",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 554
+  },
+  {
+   "name": "Right deep part of masseter",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1912
+  },
+  {
+   "name": "Right inferior head of lateral pterygoid",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 646
+  },
+  {
+   "name": "Right medial pterygoid",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 980
+  },
+  {
+   "name": "Right superior head of lateral pterygoid",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "deep muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 452
+  },
+  {
+   "name": "Left depressor anguli oris",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1178
+  },
+  {
+   "name": "Left depressor labii inferioris",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1646
+  },
+  {
+   "name": "Left frontalis",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 7408
+  },
+  {
+   "name": "Left levator labii superioris",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1070
+  },
+  {
+   "name": "Left mentalis",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 332
+  },
+  {
+   "name": "Left nasalis",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1382
+  },
+  {
+   "name": "Left orbicularis oris",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 3712
+  },
+  {
+   "name": "Left orbital part of orbicularis oculi",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 4592
+  },
+  {
+   "name": "Left palpebral part of orbicularis oculi",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1652
+  },
+  {
+   "name": "Left procerus",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1076
+  },
+  {
+   "name": "Left risorius",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1178
+  },
+  {
+   "name": "Left superficial part of masseter",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 2690
+  },
+  {
+   "name": "Left temporalis",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 7224
+  },
+  {
+   "name": "Left zygomaticus major",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1562
+  },
+  {
+   "name": "Left zygomaticus minor",
+   "kind": "muscle",
+   "side": "left",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 852
+  },
+  {
+   "name": "Right depressor anguli oris",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1178
+  },
+  {
+   "name": "Right depressor labii inferioris",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1646
+  },
+  {
+   "name": "Right frontalis",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 7406
+  },
+  {
+   "name": "Right levator labii superioris",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1070
+  },
+  {
+   "name": "Right mentalis",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 332
+  },
+  {
+   "name": "Right nasalis",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1384
+  },
+  {
+   "name": "Right orbicularis oris",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 3716
+  },
+  {
+   "name": "Right orbital part of orbicularis oculi",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 4608
+  },
+  {
+   "name": "Right palpebral part of orbicularis oculi",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1650
+  },
+  {
+   "name": "Right procerus",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1076
+  },
+  {
+   "name": "Right risorius",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1178
+  },
+  {
+   "name": "Right superficial part of masseter",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 2684
+  },
+  {
+   "name": "Right temporalis",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 7248
+  },
+  {
+   "name": "Right zygomaticus major",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 1558
+  },
+  {
+   "name": "Right zygomaticus minor",
+   "kind": "muscle",
+   "side": "right",
+   "layer": "superficial muscles",
+   "fma": null,
+   "source": "Z-Anatomy",
+   "tri": 852
+  }
+ ]
+}

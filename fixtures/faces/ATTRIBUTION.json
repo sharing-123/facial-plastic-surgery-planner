@@ -1,0 +1,42 @@
+{
+ "Official_portrait_of_Barack_Obama.jpg": {
+  "title": "File:Official portrait of Barack Obama.jpg",
+  "licence": "CC BY 3.0",
+  "artist": "Pete Souza",
+  "source": "https://commons.wikimedia.org/wiki/File:Official_portrait_of_Barack_Obama.jpg",
+  "size": [
+   1916,
+   2608
+  ]
+ },
+ "Michelle_Obama_2013_official_portrait.jpg": {
+  "title": "File:Michelle Obama 2013 official portrait.jpg",
+  "licence": "Public domain",
+  "artist": "Official White House Photo by Chuck Kennedy",
+  "source": "https://commons.wikimedia.org/wiki/File:Michelle_Obama_2013_official_portrait.jpg",
+  "size": [
+   2722,
+   4096
+  ]
+ },
+ "Neil_Armstrong_pose.jpg": {
+  "title": "File:Neil Armstrong pose.jpg",
+  "licence": "Public domain",
+  "artist": "Unknown authorUnknown author",
+  "source": "https://commons.wikimedia.org/wiki/File:Neil_Armstrong_pose.jpg",
+  "size": [
+   3300,
+   4125
+  ]
+ },
+ "Joe_Biden_presidential_portrait.jpg": {
+  "title": "File:Joe Biden presidential portrait.jpg",
+  "licence": "Public domain",
+  "artist": "Adam Schultz",
+  "source": "https://commons.wikimedia.org/wiki/File:Joe_Biden_presidential_portrait.jpg",
+  "size": [
+   2400,
+   3000
+  ]
+ }
+}
