@@ -1,14 +1,39 @@
-# FaceStudio
+<p align="center">
+  <img src="assets/banner.webp" width="100%" alt="Rotating three dimensional facial mesh with a scan plane and numbered suture marks">
+</p>
 
-Facial analysis and surgical planning from one photograph, as a full-stack site: a WebGL landing world, a photo workbench
-and a FastAPI backend. Decision support for clinicians; not a diagnosis, no beauty score, no verdict on surgery.
+<h1 align="center">FaceStudio</h1>
+
+<p align="center">
+  Facial analysis and surgical planning from one photograph: a WebGL landing world, a photo workbench and a FastAPI backend.<br>
+  Muhammad Allam Rafi<sup>1</sup> and Cindy Rizky Afrilia<sup>2</sup><br>
+  <sup>1</sup>Faculty of Medicine, Universitas Indonesia &nbsp;&middot;&nbsp; <sup>2</sup>Faculty of Medicine, Universitas Kristen Krida Wacana
+</p>
+
+<p align="center">
+  <a href="https://doi.org/10.17605/OSF.IO/ESW47"><img src="https://img.shields.io/badge/OSF-10.17605%2FOSF.IO%2FESW47-1f3a5f?style=flat-square" alt="OSF registration"></a>
+  <a href="https://doi.org/10.5281/zenodo.24412867"><img src="https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.24412867-1f3a5f?style=flat-square" alt="Zenodo archive"></a>
+  <img src="https://img.shields.io/badge/status-research%20prototype-1f3a5f?style=flat-square" alt="Research prototype">
+</p>
+
+Decision support for clinicians. It is not a diagnosis, gives no beauty score and no verdict on whether surgery is needed.
+
+* **OSF registration:** https://doi.org/10.17605/OSF.IO/ESW47
+* **Zenodo archive:** https://doi.org/10.5281/zenodo.24412867
+* The first Python research package (v0.1.0, the code behind the OSF and Zenodo records) is kept in this repository's history under the tag
+  [`python-package-v0.1.0`](https://github.com/sharing-123/facial-plastic-surgery-planner/tree/python-package-v0.1.0).
+
+![Marking triptych: segmented contour, numbered sutures, schematic closure](assets/figure_marking.jpg)
+
+## What is in it
 
 * **web/**: Vite + TypeScript + Three.js + GSAP + Lenis. MediaPipe Face Landmarker (478 points) runs in the browser, so photographs
-  never leave the device. Clinical rules are TypeScript ports of the prototype in `smile_symmetry` (RSTL, 34-zone atlas, wound
-  geometry, markings, planner, quality gate, proportions).
+  never leave the device. Clinical rules are TypeScript ports of the Python prototype (RSTL, 34-zone atlas, wound geometry,
+  markings, planner, quality gate, proportions). The scroll world and its motion are described in
+  [MOTION-CATALOG-1.md](MOTION-CATALOG-1.md).
 * **server/**: FastAPI, saved cases per browser workspace (SQLite, or PostgreSQL via `DATABASE_URL`), optional MobileSAM
-  segmentation (503 when the weights are absent), health check, serves `web/dist`.
-* **tools/**, **scripts/**: asset preparation (head anatomy cut from Ecorche, canonical face export, fixture download).
+  segmentation (503 when the weights are absent), an example gallery at `/api/examples`, health check, serves `web/dist`.
+* **tools/**, **scripts/**: asset preparation (head anatomy cut from Ecorche, canonical face export, example sheets, fixtures).
 
 ```powershell
 cd web; npm ci; npm run build; npm test; cd ..
@@ -17,10 +42,41 @@ python server/run.py        # http://127.0.0.1:8780
 docker compose up --build   # with PostgreSQL, http://127.0.0.1:8781
 ```
 
-See `deploy/DEPLOY.md` for Docker, Hugging Face Spaces and licences. The weights and datasets with non-commercial terms are
-never committed.
+See `deploy/DEPLOY.md` for Docker, Hugging Face Spaces and licences. Weights and datasets with non-commercial terms are never committed.
+
+## Example outputs
+
+Each sheet shows the measured lesion, the marking with numbered sutures and an illustration of the expected appearance, with size, type,
+angle to the skin tension lines, plan and a palsy-or-cosmetic screening note. The lesions are synthetic, drawn on public-domain portraits.
+
+![Example: oblique forehead laceration](server/examples/ex1_sheet_en.jpg)
+![Example: vertical forehead scar across the lines](server/examples/ex5_sheet_en.jpg)
+
+Outputs of the earlier Python prototype:
+
+| | |
+|---|---|
+| ![Facial palsy symmetry findings](assets/gallery/palsy_symmetry.jpg) | ![Zone atlas](assets/gallery/zone_atlas.jpg) |
+| ![Keloid, nonlinear](assets/gallery/keloid_nonlinear.jpg) | ![Wrinkle map](assets/gallery/wrinkle_map.jpg) |
+
+## Segmentation results
+
+Lesion segmentation was evaluated earlier on the Python prototype. These are the reported figures of that run, not re-run for this release.
+
+| Model | Accuracy | Precision | Recall | F1 | Dice |
+|---|---|---|---|---|---|
+| New model (U-Net with the outline as input) | 0.969 | 0.948 | 0.948 | 0.948 | 0.943 (95% CI 0.941 to 0.946) |
+| Rough outline only | 0.917 | 0.807 | 0.952 | 0.873 | |
+| MobileSAM (previous version) | 0.830 | 0.647 | 0.955 | 0.771 | |
+
+The in-browser studio outlines lesions with its own region growing, and the optional server route uses MobileSAM when its weights are installed. The U-Net is not part of this release.
 
 ## Honest limits
 Scale without a reference object is an estimate; depth cannot be measured from a photograph (the app shows a range); a photograph
 cannot exclude malignancy; the RSTL field is a coarse rule-based approximation; the layered anatomy is an illustration fitted to
 the landmarks, not a scan; the differential and plan are rule-based and have not been validated against clinicians.
+
+## Licence and third-party material
+
+Code: MIT (see `LICENSE`). Third-party models, the CC BY-SA head anatomy and the public-domain sample portraits are listed in
+[NOTICE.md](NOTICE.md).
